@@ -1,0 +1,3 @@
+# Grunt plugin for MSBuild
+
+This is currently a work in progress, initially just setting up the template for the project...
