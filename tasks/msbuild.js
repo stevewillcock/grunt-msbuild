@@ -69,8 +69,11 @@ module.exports = function (grunt) {
 
     function buildCommand(src, configuration) {
 
+        // TODO - work out the location of the msbuild exe, don't hard code it
         var command = 'C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\msbuild.exe ';
+        // TODO - work out the path separators depending on environment so this can work on *nix for xbuild
         var mainPath = path.resolve() + '\\' + src;
+        // TODO - allow args to be passed as a hash
         var args = ' /t:Build /p:Configuration=' + configuration;
 
         return command + mainPath + args;
