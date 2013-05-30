@@ -7,6 +7,7 @@ module.exports = function (grunt) {
                 dev: {
                     projectFile: 'RB.BusinessModules.Website.csproj',
                     options: {
+                        configuration: 'Dev',
                         stdout: false
                     }
                 }

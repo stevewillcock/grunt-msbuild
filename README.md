@@ -1,3 +1,16 @@
 # Grunt plugin for MSBuild
 
-This is currently a work in progress, initially just setting up the template for the project...
+Build projects with MSBuild
+
+example config
+
+        msbuild: {
+            dev: {
+                src: ['**/MYSolutionFile.sln'],
+                options: {
+                    configuration: 'Debug',
+                    stdout: false
+                }
+            }
+        }
+
