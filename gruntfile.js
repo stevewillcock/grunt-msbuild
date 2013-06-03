@@ -1,19 +1,25 @@
-module.exports = function (grunt) {
+module.exports = function(grunt) {
 
     // Project configuration.
+
     grunt.initConfig({
 
-            msbuild: {
-                dev: {
-                    projectFile: 'RB.BusinessModules.Website.csproj',
-                    options: {
-                        configuration: 'Dev',
-                        stdout: false
+        msbuild: {
+            dev: {
+                files: {
+                    ['TestProject.csproj']
+                },
+                options: {
+                    projectConfiguration: 'Dev',
+                    stdout: false,
+                    buildParameters: {
+                        argA: 'bobobobobo',
+                        argB: 'billbillbill '
                     }
                 }
             }
         }
-    );
+    });
 
     grunt.loadNpmTasks('grunt-msbuild');
 
