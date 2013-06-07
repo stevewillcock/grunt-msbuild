@@ -15,14 +15,17 @@ module.exports = function(grunt) {
         var options = this.options({
             stdout: false,
             stderr: true,
-            target: 'Build',
+            targets: ['Build'],
             buildParameters: {},
-            failOnError: true
+            failOnError: true,
+            verbosity: 'normal'
         });
 
-        if(!options.buildParameters.configuration) {
-            options.buildParameters.configuration = 'Debug';
+        if (!options.buildParameters.projectConfiguration) {
+            options.buildParameters.projectConfiguration = 'Release';
         }
+
+        grunt.verbose.writeln('Using Options: ' + JSON.stringify(options, null, 4).cyan);
 
         var projectFunctions = [];
 
@@ -44,12 +47,12 @@ module.exports = function(grunt) {
 
     function build(src, options, cb) {
 
-        grunt.log.writeln('Building '.cyan + src);
+        grunt.log.writeln('Building ' + src.cyan);
         var cmd = buildCommand(src, options);
 
-        console.log(cmd);
-        return;
-
+        if (!cmd) {
+            return;
+        }
 
         var cp = exec(cmd, options.execOptions, function(err, stdout, stderr) {
             if (_.isFunction(options.callback)) {
@@ -62,7 +65,7 @@ module.exports = function(grunt) {
                         grunt.warn(err);
                     }
                 }
-                grunt.log.writeln('Build complete '.cyan + src);
+                grunt.log.writeln('Build complete ' + src.cyan);
                 cb();
             }
         });
@@ -80,25 +83,26 @@ module.exports = function(grunt) {
     function buildCommand(src, options) {
 
         // TODO - work out the location of the msbuild exe, don't hard code it
-        var commandPath = 'C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\msbuild.exe ';
+        var commandPath = path.normalize('C:/Windows/Microsoft.NET/Framework/v4.0.30319/MSBuild.exe');
 
-        // if(!fs.existsSync(commandPath)) {
-            // return null;
-        // }
-
-        // TODO - work out the path separators depending on environment so this can work on *nix for xbuild
-        var projectPath = path.resolve() + '\\' + src;
-        
-        // TODO - allow args to be passed as hash
-        var args = ' /t:' + options.target;
-
-        for(var buildArg in options.buildParameters) {
-            console.log(buildArg);
-            args += ' /p:' + buildArg + '=' + options.buildParameters[buildArg];
+        if (!fs.existsSync(commandPath)) {
+            grunt.fatal('Unable to find MSBuild executable');
         }
 
-        return commandPath + projectPath + args;
+        var projectPath = path.normalize(path.resolve() + '/' + src);
 
+        var args = ' /target:' + options.targets;
+        args += ' /verbosity:' + options.verbosity;
+
+        for (var buildArg in options.buildParameters) {
+            args += ' /property:' + buildArg + '=' + options.buildParameters[buildArg];
+        }
+
+        var fullCommand = commandPath + ' ' + projectPath + ' ' + args;
+
+        grunt.verbose.writeln('Using Command:' + fullCommand.cyan);    
+        
+        return fullCommand;
     }
 
 };
