@@ -3,3 +3,4 @@ test
 Gruntfile.js
 .gitignore
 .idea
+tests/vs

@@ -1,0 +1,16 @@
+{
+  "name": "single-project-file",
+  "version": "0.0.0",
+  "description": "ERROR: No README.md file found!",
+  "main": "gruntfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "author": "",
+  "license": "BSD",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-msbuild": "0.0.5"
+  }
+}

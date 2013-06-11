@@ -10,7 +10,7 @@ module.exports = function(grunt) {
 
     grunt.registerMultiTask('msbuild', 'Run MSBuild tasks', function() {
 
-        var cb = this.async();
+        var asyncCallback = this.async();
 
         var options = this.options({
             stdout: false,
@@ -41,7 +41,9 @@ module.exports = function(grunt) {
             });
         });
 
-        async.series(projectFunctions);
+        async.series(projectFunctions, function() {
+            asyncCallback();
+        });
 
     });
 
@@ -100,8 +102,8 @@ module.exports = function(grunt) {
 
         var fullCommand = commandPath + ' ' + projectPath + ' ' + args;
 
-        grunt.verbose.writeln('Using Command:' + fullCommand.cyan);    
-        
+        grunt.verbose.writeln('Using Command:' + fullCommand.cyan);
+
         return fullCommand;
     }
 
