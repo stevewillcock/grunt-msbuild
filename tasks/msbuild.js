@@ -91,13 +91,13 @@ module.exports = function(grunt) {
             grunt.fatal('Unable to find MSBuild executable');
         }
 
-        var projectPath = path.normalize(path.resolve() + '/' + src);
-
+        var projectPath = '\"' + path.normalize(path.resolve() + '/' + src) + '\"';
+        
         var args = ' /target:' + options.targets;
         args += ' /verbosity:' + options.verbosity;
 
         for (var buildArg in options.buildParameters) {
-            args += ' /property:' + buildArg + '=' + options.buildParameters[buildArg];
+            args += ' /property:' + buildArg + '=\"' + options.buildParameters[buildArg] + '\"';
         }
 
         var fullCommand = commandPath + ' ' + projectPath + ' ' + args;
