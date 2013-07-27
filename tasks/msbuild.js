@@ -117,7 +117,7 @@ module.exports = function(grunt) {
     }
     
     function buildPath (version, processor) {
-      processor = 'Framework' + processor;
+      processor = 'Framework' + (processor === 64 ? processor : '');
       version = versions[version];
       if (!version) {
         grunt.fatal('Invaild .NET framework version "' + version + '"');
