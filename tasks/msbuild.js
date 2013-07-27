@@ -7,6 +7,14 @@ module.exports = function(grunt) {
         fs = require('fs');
 
     var _ = grunt.util._;
+    
+    var versions = {
+      1.0: '1.0.3705',
+      1.1: '1.1.4322',
+      2.0: '2.0.50727',
+      3.5: '3.5',
+      4.0: '4.0.30319'
+    };
 
     grunt.registerMultiTask('msbuild', 'Run MSBuild tasks', function() {
 
@@ -18,7 +26,9 @@ module.exports = function(grunt) {
             targets: ['Build'],
             buildParameters: {},
             failOnError: true,
-            verbosity: 'normal'
+            verbosity: 'normal',
+            processor: '',
+            version: 4.0
         });
 
         if (!options.buildParameters.projectConfiguration) {
@@ -84,8 +94,7 @@ module.exports = function(grunt) {
 
     function buildCommand(src, options) {
 
-        // TODO - work out the location of the msbuild exe, don't hard code it
-        var commandPath = path.normalize('C:/Windows/Microsoft.NET/Framework/v4.0.30319/MSBuild.exe');
+        var commandPath = path.normalize(buildPath(options.version, options.processor));
 
         if (!fs.existsSync(commandPath)) {
             grunt.fatal('Unable to find MSBuild executable');
@@ -105,6 +114,15 @@ module.exports = function(grunt) {
         grunt.verbose.writeln('Using Command:' + fullCommand.cyan);
 
         return fullCommand;
+    }
+    
+    function buildPath (version, processor) {
+      processor = 'Framework' + (processor === 64 ? processor : '');
+      version = versions[version];
+      if (!version) {
+        grunt.fatal('Invaild .NET framework version "' + version + '"');
+      }
+      return path.join(process.env.WINDIR, 'Microsoft.Net', processor, 'v' + version, 'MSBuild.exe');
     }
 
 };
