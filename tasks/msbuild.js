@@ -31,8 +31,6 @@ module.exports = function(grunt) {
             version: 4.0
         });
 
-        console.log(JSON.stringify(options.buildParameters));
-
         if (!options.projectConfiguration) {
             options.projectConfiguration = 'Release';
         }
@@ -123,7 +121,7 @@ module.exports = function(grunt) {
       processor = 'Framework' + (processor === 64 ? processor : '');
       version = versions[version];
       if (!version) {
-        grunt.fatal('Invaild .NET framework version "' + version + '"');
+        grunt.fatal('Unrecognised .NET framework version "' + version + '"');
       }
       return path.join(process.env.WINDIR, 'Microsoft.Net', processor, 'v' + version, 'MSBuild.exe');
     }
