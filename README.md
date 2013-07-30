@@ -6,20 +6,17 @@ example config
 
 	module.exports = function(grunt) {
 
-	    // Project configuration.
-
 	    grunt.initConfig({
 
 	        msbuild: {
 	            dev: {
 	                src: ['ConsoleApplication5.csproj'],
 	                options: {
-	                    projectConfigurations: 'Debug',
+	                    projectConfiguration: 'Debug',
 	                    targets: ['Clean', 'Rebuild'],
 	                    stdout: true,
 	                    buildParameters: {
-	                        WarningLevel: 2,
-	                        OutputPath: 'bin\\Debug'
+	                        WarningLevel: 2
 	                    },
 	                    verbosity: 'quiet'
 	                }

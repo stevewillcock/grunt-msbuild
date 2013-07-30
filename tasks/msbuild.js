@@ -31,8 +31,10 @@ module.exports = function(grunt) {
             version: 4.0
         });
 
-        if (!options.buildParameters.projectConfiguration) {
-            options.buildParameters.projectConfiguration = 'Release';
+        console.log(JSON.stringify(options.buildParameters));
+
+        if (!options.projectConfiguration) {
+            options.projectConfiguration = 'Release';
         }
 
         grunt.verbose.writeln('Using Options: ' + JSON.stringify(options, null, 4).cyan);
@@ -104,6 +106,7 @@ module.exports = function(grunt) {
         
         var args = ' /target:' + options.targets;
         args += ' /verbosity:' + options.verbosity;
+        args += ' /property:Configuration=' + options.projectConfiguration; 
 
         for (var buildArg in options.buildParameters) {
             args += ' /property:' + buildArg + '=\"' + options.buildParameters[buildArg] + '\"';
