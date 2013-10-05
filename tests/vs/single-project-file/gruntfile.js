@@ -21,6 +21,12 @@ module.exports = function(grunt) {
 	        }
 	    });
 
+		grunt.registerTask('default', ['msbuild', 'continuationTest']);
+
+		grunt.registerTask('continuationTest', function() {
+			grunt.log.writeln('continued OK...');
+		});
+
 	    grunt.loadNpmTasks('grunt-msbuild');
 
 	};

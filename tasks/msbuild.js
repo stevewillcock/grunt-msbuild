@@ -68,7 +68,6 @@ module.exports = function(grunt) {
 
         var cp = exec(cmd, options.execOptions, function(err, stdout, stderr) {
             if (_.isFunction(options.callback)) {
-                // Where does options.callback come from?
                 options.callback.call(this, err, stdout, stderr, cb);
             } else {
                 if (err) {
@@ -104,9 +103,16 @@ module.exports = function(grunt) {
         
         var args = ' /target:' + options.targets;
         args += ' /verbosity:' + options.verbosity;
-        args += ' /property:Configuration=' + options.projectConfiguration; 
+        
+        if(options.maxCpuCount) {
+            grunt.verbose.writeln('Using maxcpucount:' + '' + options.maxCpuCount.cyan);
+            args += ' /maxcpucount:' + options.maxCpuCount;
+        }
+        
+        args += ' /property:Configuration=' + options.projectConfiguration;
 
         for (var buildArg in options.buildParameters) {
+
             args += ' /property:' + buildArg + '=\"' + options.buildParameters[buildArg] + '\"';
         }
 

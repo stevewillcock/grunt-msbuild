@@ -13,6 +13,7 @@ module.exports = function(grunt) {
 					projectConfigurations: 'Debug',
 					targets: ['Clean', 'Rebuild'],
 					stdout: true,
+					maxCpuCount: 2,
 					buildParameters: {
 						WarningLevel: 2,
 						OutputPath: 'bin\\Debug'
@@ -28,5 +29,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('continuationTest', function() {
 		grunt.log.writeln('continued OK...');
 	});
+
+	grunt.registerTask('default', ['msbuild', 'continuationTest']);
 
 };
