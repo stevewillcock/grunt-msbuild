@@ -15,6 +15,7 @@ example config
 	                    projectConfiguration: 'Debug',
 	                    targets: ['Clean', 'Rebuild'],
 	                    stdout: true,
+	                    maxCpuCount: 4,
 	                    buildParameters: {
 	                        WarningLevel: 2
 	                    },
