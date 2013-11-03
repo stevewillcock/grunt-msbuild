@@ -1,5 +1,5 @@
 'use strict';
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
     var exec = require('child_process').exec,
         path = require('path'),
@@ -7,16 +7,16 @@ module.exports = function(grunt) {
         fs = require('fs');
 
     var _ = grunt.util._;
-    
+
     var versions = {
-      1.0: '1.0.3705',
-      1.1: '1.1.4322',
-      2.0: '2.0.50727',
-      3.5: '3.5',
-      4.0: '4.0.30319'
+        1.0: '1.0.3705',
+        1.1: '1.1.4322',
+        2.0: '2.0.50727',
+        3.5: '3.5',
+        4.0: '4.0.30319'
     };
 
-    grunt.registerMultiTask('msbuild', 'Run MSBuild tasks', function() {
+    grunt.registerMultiTask('msbuild', 'Run MSBuild tasks', function () {
 
         var asyncCallback = this.async();
 
@@ -39,19 +39,19 @@ module.exports = function(grunt) {
 
         var projectFunctions = [];
 
-        this.files.forEach(function(filePair) {
-            filePair.src.forEach(function(src) {
-                projectFunctions.push(function(cb) {
+        this.files.forEach(function (filePair) {
+            filePair.src.forEach(function (src) {
+                projectFunctions.push(function (cb) {
                     build(src, options, cb);
                 });
 
-                projectFunctions.push(function(cb) {
+                projectFunctions.push(function (cb) {
                     cb();
                 });
             });
         });
 
-        async.series(projectFunctions, function() {
+        async.series(projectFunctions, function () {
             asyncCallback();
         });
 
@@ -66,7 +66,7 @@ module.exports = function(grunt) {
             return;
         }
 
-        var cp = exec(cmd, options.execOptions, function(err, stdout, stderr) {
+        var cp = exec(cmd, options.execOptions, function (err, stdout, stderr) {
             if (_.isFunction(options.callback)) {
                 options.callback.call(this, err, stdout, stderr, cb);
             } else {
@@ -93,22 +93,18 @@ module.exports = function(grunt) {
 
     function buildCommand(src, options) {
 
-        var commandPath = path.normalize(buildPath(options.version, options.processor));
-
-        if (!fs.existsSync(commandPath)) {
-            grunt.fatal('Unable to find MSBuild executable');
-        }
+        var commandPath = path.normalize(getBuildExecutablePath(options.version, options.processor));
 
         var projectPath = '\"' + path.normalize(path.resolve() + '/' + src) + '\"';
-        
+
         var args = ' /target:' + options.targets;
         args += ' /verbosity:' + options.verbosity;
-        
-        if(options.maxCpuCount) {
+
+        if (options.maxCpuCount) {
             grunt.verbose.writeln('Using maxcpucount:' + '' + options.maxCpuCount.cyan);
             args += ' /maxcpucount:' + options.maxCpuCount;
         }
-        
+
         args += ' /property:Configuration=' + options.projectConfiguration;
 
         for (var buildArg in options.buildParameters) {
@@ -122,14 +118,30 @@ module.exports = function(grunt) {
 
         return fullCommand;
     }
-    
-    function buildPath (version, processor) {
-      processor = 'Framework' + (processor === 64 ? processor : '');
-      version = versions[version];
-      if (!version) {
-        grunt.fatal('Unrecognised .NET framework version "' + version + '"');
-      }
-      return path.join(process.env.WINDIR, 'Microsoft.Net', processor, 'v' + version, 'MSBuild.exe');
+
+    function getBuildExecutablePath(version, processor) {
+
+        // temp mono xbuild hack for linux - assumes xbuild is in the path, works on my machine (Ubuntu 12.04 with Mono JIT compiler version 3.2.1 (Debian 3.2.1+dfsg-1~pre2))
+        if (process.platform === 'linux') {
+            return 'xbuild';
+        }
+
+        processor = 'Framework' + (processor === 64 ? processor : '');
+
+        version = versions[version];
+
+        if (!version) {
+            grunt.fatal('Unrecognised .NET framework version "' + version + '"');
+        }
+
+        var buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', processor, 'v' + version, 'MSBuild.exe');
+
+        if (!fs.existsSync(commandPath)) {
+            grunt.fatal('Unable to find MSBuild executable');
+        }
+
+        return buildExecutablePath;
+
     }
 
 };
