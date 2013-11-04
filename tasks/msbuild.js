@@ -136,7 +136,7 @@ module.exports = function (grunt) {
 
         var buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', processor, 'v' + version, 'MSBuild.exe');
 
-        if (!fs.existsSync(commandPath)) {
+        if (!fs.existsSync(buildExecutablePath)) {
             grunt.fatal('Unable to find MSBuild executable');
         }
 
