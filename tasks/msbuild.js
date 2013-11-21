@@ -121,8 +121,8 @@ module.exports = function (grunt) {
 
     function getBuildExecutablePath(version, processor) {
 
-        // temp mono xbuild hack for linux - assumes xbuild is in the path, works on my machine (Ubuntu 12.04 with Mono JIT compiler version 3.2.1 (Debian 3.2.1+dfsg-1~pre2))
-        if (process.platform === 'linux') {
+        // temp mono xbuild hack for linux / osx - assumes xbuild is in the path, works on my machine (Ubuntu 12.04 with Mono JIT compiler version 3.2.1 (Debian 3.2.1+dfsg-1~pre2))
+        if (process.platform === 'linux' || process.platform === 'darwin') {
             return 'xbuild';
         }
 
