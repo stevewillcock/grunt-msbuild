@@ -1,6 +1,6 @@
 {
   "name": "grunt-msbuild",
-  "version": "0.1.7777777",
+  "version": "0.1.9",
   "description": "",
   "main": "index.js",
   "scripts": {
