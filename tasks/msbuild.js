@@ -28,7 +28,8 @@ module.exports = function (grunt) {
             failOnError: true,
             verbosity: 'normal',
             processor: '',
-            version: 4.0
+            version: 4.0,
+            nologo: true
         });
 
         if (!options.projectConfiguration) {
@@ -99,6 +100,10 @@ module.exports = function (grunt) {
 
         var args = ' /target:' + options.targets;
         args += ' /verbosity:' + options.verbosity;
+        
+        if(options.nologo){
+            args += ' /nologo';
+        }
 
         if (options.maxCpuCount) {
             grunt.verbose.writeln('Using maxcpucount:' + '' + options.maxCpuCount.cyan);
