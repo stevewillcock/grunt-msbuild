@@ -100,8 +100,8 @@ module.exports = function (grunt) {
 
         var args = ' /target:' + options.targets;
         args += ' /verbosity:' + options.verbosity;
-        
-        if(options.nologo){
+
+        if (options.nologo) {
             args += ' /nologo';
         }
 
