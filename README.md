@@ -1,9 +1,9 @@
 # grunt-msbuild
 
-> Build projects with MSBuild using Grunt
+> Build projects with MSBuild and XBuild using Grunt
 
 ## Getting Started
-This plugin requires Grunt `~0.4.1`
+This plugin requires Grunt `~0.4.0`. In other words it should work on 0.4.0 or higher.
 
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin with this command:
 
@@ -31,6 +31,7 @@ grunt.initConfig({
                 projectConfiguration: 'Debug',
                 targets: ['Clean', 'Rebuild'],
                 stdout: true,
+                version: 4.0,
                 maxCpuCount: 4,
                 buildParameters: {
                     WarningLevel: 2
@@ -42,7 +43,24 @@ grunt.initConfig({
 });
 ```
 
+## MSBuild version selection
+Pass a version parameter to the task options as shown above to select a specific MSBuild version.
+
+The version number is used to look up the .NET version and find the .NET Framework directory location on disk. The following version mappings are used:
+            console.log('found');
+
+|Version| .NET Framework directory|
+|-------|-------------------------|
+|1.0|1.0.3705|
+|1.1|1.1.4322|
+|2.0|2.0.50727|
+|3.5|3.5|
+|4.0|4.0.30319|
+
+If a version is not passed the task will attempt to locate version 12 of MSBuild which is installed with Visual Studio 2013, and will then fallback to 4.0
+
+## XBuild
+If this task is run on OS X or Linux it will assume that xbuild is in the path and use that instead of MSBuild
+
 ## Contributing
-In lieu of a formal styleguide, take care to maintain the existing coding style. Add to the VS integration tests for any new or changed functionality.
-
-
+All contributions welcome :) Add to the VS integration tests for any new or changed functionality if possible.

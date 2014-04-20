@@ -28,7 +28,6 @@ module.exports = function (grunt) {
             failOnError: true,
             verbosity: 'normal',
             processor: '',
-            version: 4.0,
             nologo: true
         });
 
@@ -94,7 +93,7 @@ module.exports = function (grunt) {
 
     function buildCommand(src, options) {
 
-        var commandPath = path.normalize(getBuildExecutablePath(options.version, options.processor));
+        var commandPath = path.normalize(getBuildExecutablePath(options.version || null, options.processor));
 
         var projectPath = '\"' + path.normalize(path.resolve() + '/' + src) + '\"';
 
@@ -131,15 +130,25 @@ module.exports = function (grunt) {
             return 'xbuild';
         }
 
+        if (!version) {
+          var msBuild12Path = 'C:/Program\ Files\ (x86)/MSBuild/12.0/Bin/MSBuild.exe';
+          if(fs.existsSync(msBuild12Path)) {
+            grunt.verbose.writeln('MSBuild 12 available, using this');
+            return '"' + msBuild12Path + '"';
+          }
+        }
+
         processor = 'Framework' + (processor === 64 ? processor : '');
 
-        version = versions[version];
+        var specificVersion = versions[version];
 
-        if (!version) {
+        if (!specificVersion) {
             grunt.fatal('Unrecognised .NET framework version "' + version + '"');
         }
 
-        var buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', processor, 'v' + version, 'MSBuild.exe');
+        var buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', processor, 'v' + specificVersion, 'MSBuild.exe');
+
+        grunt.verbose.writeln('Using MSBuild at:' + buildExecutablePath.cyan);
 
         if (!fs.existsSync(buildExecutablePath)) {
             grunt.fatal('Unable to find MSBuild executable');
