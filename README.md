@@ -47,7 +47,6 @@ grunt.initConfig({
 Pass a version parameter to the task options as shown above to select a specific MSBuild version.
 
 The version number is used to look up the .NET version and find the .NET Framework directory location on disk. The following version mappings are used:
-            console.log('found');
 
 |Version| .NET Framework directory|
 |-------|-------------------------|
