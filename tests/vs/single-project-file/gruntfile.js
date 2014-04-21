@@ -15,7 +15,7 @@ module.exports = function (grunt) {
                         WarningLevel: 2,
                         OutputPath: 'bin\\Debug'
                     },
-                    verbosity: 'quiet',
+                    verbosity: 'minimal',
                     execOptions: {
                         maxBuffer: 1000 * 1024
                     }
