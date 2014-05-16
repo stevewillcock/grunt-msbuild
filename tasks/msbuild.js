@@ -130,23 +130,13 @@ module.exports = function (grunt) {
             return 'xbuild';
         }
 
-        if (!version) {
-          var msBuild12Path = 'C:/Program\ Files\ (x86)/MSBuild/12.0/Bin/MSBuild.exe';
-          if(fs.existsSync(msBuild12Path)) {
-            grunt.verbose.writeln('MSBuild 12 available, using this');
-            return '"' + msBuild12Path + '"';
-          }
-        }
-
         processor = 'Framework' + (processor === 64 ? processor : '');
 
-        var specificVersion = versions[version];
-
-        if (!specificVersion) {
-            grunt.fatal('Unrecognised .NET framework version "' + version + '"');
+        if (!version) {
+          return findLatestMsBuild(processor);
         }
 
-        var buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', processor, 'v' + specificVersion, 'MSBuild.exe');
+        var buildExecutablePath = getBuildExecutablePathFromVersion(specificVersion, processor);
 
         grunt.verbose.writeln('Using MSBuild at:' + buildExecutablePath.cyan);
 
@@ -157,5 +147,37 @@ module.exports = function (grunt) {
         return buildExecutablePath;
 
     }
+
+    function findLatestMsBuild(processor) {
+
+        var msBuild12Path = 'C:/Program\ Files\ (x86)/MSBuild/12.0/Bin/MSBuild.exe';
+        if(fs.existsSync(msBuild12Path)) {
+            grunt.verbose.writeln('MSBuild 12 available, using this');
+            return '"' + msBuild12Path + '"';
+        }
+
+		var rawVersions = [4, 3.5, 2.0, 1.1, 1.0]; // Wasn't sure how else to reverse the list since it's an object?
+		for (var i = 0; i < rawVersions.length; i++) {
+            var buildExecutablePath = getBuildExecutablePathFromVersion(rawVersions[i], processor);
+		    if(fs.existsSync(buildExecutablePath)) {
+		        return '"' + buildExecutablePath + '"';
+		    }
+     	}
+		
+        grunt.fatal("Unable to find any MSBuild executables");
+
+    }
+
+	function getBuildExecutablePathFromVersion(version, processor) {
+
+        var specificVersion = versions[version];
+
+        if (!specificVersion) {
+            grunt.fatal('Unrecognised .NET framework version "' + version + '"');
+        }
+
+	    return path.join(process.env.WINDIR, 'Microsoft.Net', processor, 'v' + specificVersion, 'MSBuild.exe');
+
+	}
 
 };
