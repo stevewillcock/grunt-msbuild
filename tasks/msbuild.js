@@ -129,8 +129,6 @@ module.exports = function(grunt) {
             return 'xbuild';
         }
 
-        console.log('version', version);
-
         if (!version) {
             var msBuild12Path = 'C:\\Program Files (x86)\\MSBuild\\12.0\\Bin\\MSBuild.exe';
             if (fs.existsSync(msBuild12Path)) {
