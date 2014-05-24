@@ -63,3 +63,23 @@ If this task is run on OS X or Linux it will assume that xbuild is in the path a
 
 ## Contributing
 All contributions welcome :) Add to the VS integration tests for any new or changed functionality if possible.
+
+## Issues and installing previous versions
+
+If you have any problems with the latest release please log an issue at https://github.com/stevewillcock/grunt-msbuild/issues.
+
+If you need to roll back to an earlier version you can use the following syntax to install a specific version
+
+```
+npm install grunt-msbuild@0.1.12
+```
+
+Also see https://www.npmjs.org/doc/json.html#dependencies for details of how to specify a particular package version in your package.json file
+
+## Release Notes
+
+|Version| Notes|
+|-------|------|
+|2.0|This version replaces exec() with spawn() to improve memory usage and also to support coloured console output.This has been tested internally.
+|0.1.12|Support for MSBuild 12 added|
+|0.1.11|...|
