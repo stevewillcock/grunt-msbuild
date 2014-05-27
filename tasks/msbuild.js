@@ -135,7 +135,7 @@ module.exports = function(grunt) {
           return findLatestMsBuild(processor);
         }
 
-        var buildExecutablePath = getBuildExecutablePathFromVersion(specificVersion, processor);
+        var buildExecutablePath = getBuildExecutablePathFromVersion(version, processor);
 
         grunt.verbose.writeln('Using MSBuild at:' + buildExecutablePath.cyan);
 
