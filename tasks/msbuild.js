@@ -1,7 +1,8 @@
-'use strict';
-module.exports = function (grunt) {
+module.exports = function(grunt) {
 
-    var exec = require('child_process').exec,
+    'use strict';
+
+    var spawn = require('child_process').spawn,
         path = require('path'),
         async = require('async'),
         fs = require('fs');
@@ -16,13 +17,11 @@ module.exports = function (grunt) {
         4.0: '4.0.30319'
     };
 
-    grunt.registerMultiTask('msbuild', 'Run MSBuild tasks', function () {
+    grunt.registerMultiTask('msbuild', 'Run MSBuild tasks', function() {
 
         var asyncCallback = this.async();
 
         var options = this.options({
-            stdout: false,
-            stderr: true,
             targets: ['Build'],
             buildParameters: {},
             failOnError: true,
@@ -39,19 +38,19 @@ module.exports = function (grunt) {
 
         var projectFunctions = [];
 
-        this.files.forEach(function (filePair) {
-            filePair.src.forEach(function (src) {
-                projectFunctions.push(function (cb) {
+        this.files.forEach(function(filePair) {
+            filePair.src.forEach(function(src) {
+                projectFunctions.push(function(cb) {
                     build(src, options, cb);
                 });
 
-                projectFunctions.push(function (cb) {
+                projectFunctions.push(function(cb) {
                     cb();
                 });
             });
         });
 
-        async.series(projectFunctions, function () {
+        async.series(projectFunctions, function() {
             asyncCallback();
         });
 
@@ -60,72 +59,72 @@ module.exports = function (grunt) {
     function build(src, options, cb) {
 
         grunt.log.writeln('Building ' + src.cyan);
-        var cmd = buildCommand(src, options);
+
+        var cmd = createCommand(options.version || null, options.processor);
+        var args = createCommandArgs(src, options);
+
+        grunt.verbose.writeln('Using cmd:', cmd);
+        grunt.verbose.writeln('Using args:', args);
 
         if (!cmd) {
             return;
         }
 
-        var cp = exec(cmd, options.execOptions, function (err, stdout, stderr) {
-            if (_.isFunction(options.callback)) {
-                options.callback.call(this, err, stdout, stderr, cb);
-            } else {
-                if (err) {
-                    grunt.log.writeln('Build failed '.cyan + src);
-                    if (options.failOnError) {
-                        grunt.warn(err);
-                    }
-                }
-                grunt.log.writeln('Build complete ' + src.cyan);
-                cb();
-            }
+
+        var cp = spawn(cmd, args, {
+            stdio: 'inherit'
         });
 
-        if (options.stdout || grunt.option('verbose')) {
-            cp.stdout.pipe(process.stdout);
-        }
+        cp.on('close', function(code) {
+            var success = code === 0;
+            grunt.verbose.writeln('close received - code: ', success);
 
-        if (options.stderr || grunt.option('verbose')) {
-            cp.stderr.pipe(process.stderr);
-        }
+            if (code === 0) {
+                grunt.log.writeln('Build complete ' + src.cyan);
+                cb();
+            } else {
+                grunt.log.writeln(('MSBuild failed with code: ' + code).cyan + src);
+                if (options.failOnError) {
+                    grunt.warn('MSBuild exited with a failure code: ' + code);
+                }
+            }
+
+        });
 
     }
 
-    function buildCommand(src, options) {
+    function createCommandArgs(src, options) {
 
-        var commandPath = path.normalize(getBuildExecutablePath(options.version || null, options.processor));
+        var args = [];
 
-        var projectPath = '\"' + path.normalize(path.resolve() + '/' + src) + '\"';
+        var projectPath = path.normalize(path.resolve() + '/' + src);
 
-        var args = ' /target:' + options.targets;
-        args += ' /verbosity:' + options.verbosity;
+        args.push(projectPath);
+
+        args.push('/target:' + options.targets);
+        args.push('/verbosity:' + options.verbosity);
 
         if (options.nologo) {
-            args += ' /nologo';
+            args.push('/nologo');
         }
 
         if (options.maxCpuCount) {
-            grunt.verbose.writeln('Using maxcpucount:' + '' + options.maxCpuCount.cyan);
-            args += ' /maxcpucount:' + options.maxCpuCount;
+            grunt.verbose.writeln('Using maxcpucount:', +options.maxCpuCount);
+            args.push('/maxcpucount:' + options.maxCpuCount);
         }
 
-        args += ' /property:Configuration=' + options.projectConfiguration;
+        args.push('/property:Configuration=' + options.projectConfiguration);
 
         for (var buildArg in options.buildParameters) {
-
-            args += ' /property:' + buildArg + '=\"' + options.buildParameters[buildArg] + '\"';
+            args.push('/property:' + buildArg + '=' + options.buildParameters[buildArg]);
         }
 
-        var fullCommand = commandPath + ' ' + projectPath + ' ' + args;
-
-        grunt.verbose.writeln('Using Command:' + fullCommand.cyan);
-
-        return fullCommand;
+        return args;
     }
 
-    function getBuildExecutablePath(version, processor) {
+    function createCommand(version, processor) {
 
-        // temp mono xbuild hack for linux / osx - assumes xbuild is in the path, works on my machine (Ubuntu 12.04 with Mono JIT compiler version 3.2.1 (Debian 3.2.1+dfsg-1~pre2))
+        // temp mono xbuild usage for linux / osx - assumes xbuild is in the path, works on my machine...
         if (process.platform === 'linux' || process.platform === 'darwin') {
             return 'xbuild';
         }
@@ -144,7 +143,7 @@ module.exports = function (grunt) {
             grunt.fatal('Unable to find MSBuild executable');
         }
 
-        return buildExecutablePath;
+        return path.normalize(buildExecutablePath);
 
     }
 
