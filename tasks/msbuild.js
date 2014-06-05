@@ -115,6 +115,10 @@ module.exports = function(grunt) {
 
         args.push('/property:Configuration=' + options.projectConfiguration);
 
+        if (options.platform) {
+            args.push('/p:Platform=' + options.platform);
+        }
+
         for (var buildArg in options.buildParameters) {
             args.push('/property:' + buildArg + '=' + options.buildParameters[buildArg]);
         }
