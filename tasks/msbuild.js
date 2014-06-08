@@ -134,11 +134,15 @@ module.exports = function(grunt) {
         }
 
         if (!version) {
-            var msBuild12Path = 'C:\\Program Files (x86)\\MSBuild\\12.0\\Bin\\MSBuild.exe';
-            if (fs.existsSync(msBuild12Path)) {
-                grunt.log.writeln('MSBuild 12 available, using this');
-                grunt.verbose.writeln('Using MSBuild at:', msBuild12Path.cyan);
-                return msBuild12Path;
+            var msBuild12x86Path = 'C:\\Program Files (x86)\\MSBuild\\12.0\\Bin\\MSBuild.exe';
+            var msBuild12x64Path = 'C:\\Program Files\\MSBuild\\12.0\\Bin\\MSBuild.exe';
+
+            if (fs.existsSync(msBuild12x86Path)) {
+                grunt.verbose.writeln('Using MSBuild at:', msBuild12x86Path.cyan);
+                return msBuild12x86Path;
+            } else if (fs.existsSync(msBuild12x64Path)) {
+                grunt.verbose.writeln('Using MSBuild at:', msBuild12x64Path.cyan);
+                return msBuild12x64Path;
             } else {
                 // Fallback to version 4.0
                 version = 4.0;
