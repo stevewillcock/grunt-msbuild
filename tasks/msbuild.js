@@ -113,6 +113,11 @@ module.exports = function(grunt) {
             args.push('/maxcpucount:' + options.maxCpuCount);
         }
 
+	if (options.consoleLoggerParameters) {
+            grunt.verbose.writeln('Using clp:' + options.consoleLoggerParameters);
+	    args.push('/clp:' + options.consoleLoggerParameters);
+	}
+
         args.push('/property:Configuration=' + options.projectConfiguration);
 
         if (options.platform) {
