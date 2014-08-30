@@ -44,14 +44,15 @@ grunt.initConfig({
 
 ### Options
 
-| Name                  | Description               | Default
-|---------------------- |-------------------------- | -------
-| projectConfiguration  | Configuration to pick     | Release
-| targets               | Targets to run            | Build
-| version               | .NET version              | 4.0
-| maxCpuCount           | Number of cores to use    | 1
-| buildParameters       | Additional [properties](http://msdn.microsoft.com/en-us/library/ms171458.aspx)
-| verbosity             | Verbosity level (quiet, minimal, normal, detailed or diagnostic) | normal
+| Name                    | Description               | Default
+|------------------------ |-------------------------- | -------
+| projectConfiguration    | Configuration to pick     | Release
+| targets                 | Targets to run            | Build
+| version                 | .NET version              | 4.0
+| maxCpuCount             | Number of cores to use    | 1
+| consoleLoggerParameters | Customize Console Logger
+| buildParameters         | Additional [properties](http://msdn.microsoft.com/en-us/library/ms171458.aspx)
+| verbosity               | Verbosity level (quiet, minimal, normal, detailed or diagnostic) | normal
 
 For more information, see [MSBuild Command-Line Reference](http://msdn.microsoft.com/en-us/library/ms164311.aspx).
 
