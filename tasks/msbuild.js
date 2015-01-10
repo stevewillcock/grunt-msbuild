@@ -37,8 +37,13 @@ module.exports = function(grunt) {
         grunt.verbose.writeln('Using Options: ' + JSON.stringify(options, null, 4).cyan);
 
         var projectFunctions = [];
+        var files = this.files;
 
-        this.files.forEach(function(filePair) {
+        if (files.length == 0) {
+            files.push({src: ['']});
+        }
+
+        files.forEach(function(filePair) {
             filePair.src.forEach(function(src) {
                 projectFunctions.push(function(cb) {
                     build(src, options, cb);
@@ -58,7 +63,9 @@ module.exports = function(grunt) {
 
     function build(src, options, cb) {
 
-        grunt.log.writeln('Building ' + src.cyan);
+        var projName = src || path.basename(process.cwd());
+
+        grunt.log.writeln('Building ' + projName.cyan);
 
         var cmd = createCommand(options.version || null, options.processor);
         var args = createCommandArgs(src, options);
@@ -80,10 +87,10 @@ module.exports = function(grunt) {
             grunt.verbose.writeln('close received - code: ', success);
 
             if (code === 0) {
-                grunt.log.writeln('Build complete ' + src.cyan);
+                grunt.log.writeln('Build complete ' + projName.cyan);
                 cb();
             } else {
-                grunt.log.writeln(('MSBuild failed with code: ' + code).cyan + src);
+                grunt.log.writeln(('MSBuild failed with code: ' + code).cyan + projName);
                 if (options.failOnError) {
                     grunt.warn('MSBuild exited with a failure code: ' + code);
                 }
@@ -97,9 +104,11 @@ module.exports = function(grunt) {
 
         var args = [];
 
-        var projectPath = path.normalize(path.resolve() + '/' + src);
+        if (src) {
+            var projectPath = path.normalize(path.resolve() + '/' + src);
 
-        args.push(projectPath);
+            args.push(projectPath);
+        }
 
         args.push('/target:' + options.targets);
         args.push('/verbosity:' + options.verbosity);
