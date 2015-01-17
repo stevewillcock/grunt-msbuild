@@ -14,7 +14,9 @@ module.exports = function(grunt) {
         1.1: '1.1.4322',
         2.0: '2.0.50727',
         3.5: '3.5',
-        4.0: '4.0.30319'
+        4.0: '4.0.30319',
+        12.0: '12.0',
+        14.0: '14.0'
     };
 
     grunt.registerMultiTask('msbuild', 'Run MSBuild tasks', function() {
@@ -168,10 +170,15 @@ module.exports = function(grunt) {
         var specificVersion = versions[version];
 
         if (!specificVersion) {
-            grunt.fatal('Unrecognised .NET framework version "' + version + '"');
+            grunt.fatal('Unrecognised MSBuild version "' + version + '"');
         }
 
-        var buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', processor, 'v' + specificVersion, 'MSBuild.exe');
+        if (version < 12) {
+            var buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', processor, 'v' + specificVersion, 'MSBuild.exe');
+        } else {
+            var programFiles = process.env['ProgramFiles(x86)'] || process.env.PROGRAMFILES;
+            var buildExecutablePath = path.join(programFiles, 'MSBuild', specificVersion, 'Bin', 'MSBuild.exe');
+        }
 
         grunt.verbose.writeln('Using MSBuild at:' + buildExecutablePath.cyan);
 

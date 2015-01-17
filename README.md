@@ -59,7 +59,7 @@ For more information, see [MSBuild Command-Line Reference](http://msdn.microsoft
 ## MSBuild version selection
 Pass a version parameter to the task options as shown above to select a specific MSBuild version.
 
-The version number is used to look up the .NET version and find the .NET Framework directory location on disk. The following version mappings are used:
+The version number is used to look up the MSBuild executable. Old MSBuild versions are installed to the corresponding .NET Framework directory (under `C:\Windows\Microsoft.NET\Framework`). Recent MSBuild versions are installed to program files (`C:\Program Files (x86)\MSBuild`). The following version mappings are used:
 
 |Version| .NET Framework directory|
 |-------|-------------------------|
@@ -69,10 +69,15 @@ The version number is used to look up the .NET version and find the .NET Framewo
 |3.5|3.5|
 |4.0|4.0.30319|
 
-If a version is not passed the task will attempt to locate version 12 of MSBuild which is installed with Visual Studio 2013, and will then fallback to 4.0
+|Version|MSBuild directory|
+|-------|-----------------|
+|12.0|12.0|
+|14.0|14.0|
+
+If a version is not passed the task will attempt to locate version 12 of MSBuild which is installed with Visual Studio 2013, and will then fallback to 4.0.
 
 ## XBuild
-If this task is run on OS X or Linux it will assume that xbuild is in the path and use that instead of MSBuild
+If this task is run on OS X or Linux it will assume that xbuild is in the path and use that instead of MSBuild.
 
 ## Contributing
 All contributions welcome :) Add to the VS integration tests for any new or changed functionality if possible.
