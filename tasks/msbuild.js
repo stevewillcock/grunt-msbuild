@@ -149,19 +149,23 @@ module.exports = function(grunt) {
             return 'xbuild';
         }
 
-        if (!version) {
-            var msBuild12x86Path = 'C:\\Program Files (x86)\\MSBuild\\12.0\\Bin\\MSBuild.exe';
-            var msBuild12x64Path = 'C:\\Program Files\\MSBuild\\12.0\\Bin\\MSBuild.exe';
+        var programFiles = process.env['ProgramFiles(x86)'] || process.env.PROGRAMFILES;
 
-            if (fs.existsSync(msBuild12x86Path)) {
-                grunt.verbose.writeln('Using MSBuild at:', msBuild12x86Path.cyan);
-                return msBuild12x86Path;
-            } else if (fs.existsSync(msBuild12x64Path)) {
-                grunt.verbose.writeln('Using MSBuild at:', msBuild12x64Path.cyan);
-                return msBuild12x64Path;
-            } else {
-                // Fallback to version 4.0
-                version = 4.0;
+        if (!version) {
+            version = 4.0; // default fallback to version 4.0
+
+            var msbuildDir = path.join(programFiles, 'MSBuild');
+
+            if (fs.existsSync(msbuildDir)) {
+                var msbuildVersions = fs.readdirSync(msbuildDir)
+                    .filter(function(entryName) {
+                        return entryName.indexOf('1') === 0;
+                    });
+
+                if (msbuildVersions.length > 0) {
+                    // set latest installed msbuild version
+                    version = parseInt(msbuildVersions[msbuildVersions.length - 1]);
+                }
             }
         }
 
@@ -176,7 +180,6 @@ module.exports = function(grunt) {
         if (version < 12) {
             var buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', processor, 'v' + specificVersion, 'MSBuild.exe');
         } else {
-            var programFiles = process.env['ProgramFiles(x86)'] || process.env.PROGRAMFILES;
             var buildExecutablePath = path.join(programFiles, 'MSBuild', specificVersion, 'Bin', 'MSBuild.exe');
         }
 
