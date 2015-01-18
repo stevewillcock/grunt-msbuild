@@ -149,6 +149,10 @@ module.exports = function(grunt) {
             return 'xbuild';
         }
 
+        // convert to numbers if correct strings
+        version = isNaN(version) ? version : parseFloat(version);
+        processor = isNaN(processor) ? processor : parseFloat(processor);
+
         var programFiles = process.env['ProgramFiles(x86)'] || process.env.PROGRAMFILES;
 
         if (!version) {
