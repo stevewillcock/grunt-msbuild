@@ -164,7 +164,7 @@ module.exports = function(grunt) {
 
                 if (msbuildVersions.length > 0) {
                     // set latest installed msbuild version
-                    version = parseInt(msbuildVersions[msbuildVersions.length - 1]);
+                    version = parseFloat(msbuildVersions[msbuildVersions.length - 1]);
                 }
             }
         }
