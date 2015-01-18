@@ -169,8 +169,6 @@ module.exports = function(grunt) {
             }
         }
 
-        processor = 'Framework' + (processor === 64 ? processor : '');
-
         var specificVersion = versions[version];
 
         if (!specificVersion) {
@@ -178,9 +176,11 @@ module.exports = function(grunt) {
         }
 
         if (version < 12) {
-            var buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', processor, 'v' + specificVersion, 'MSBuild.exe');
+            var frameworkDir = 'Framework' + (processor === 64 ? processor : '');
+            var buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', frameworkDir, 'v' + specificVersion, 'MSBuild.exe');
         } else {
-            var buildExecutablePath = path.join(programFiles, 'MSBuild', specificVersion, 'Bin', 'MSBuild.exe');
+            var x64Dir = processor === 64 ? 'amd64' : '';
+            var buildExecutablePath = path.join(programFiles, 'MSBuild', specificVersion, 'Bin', x64Dir, 'MSBuild.exe');
         }
 
         grunt.verbose.writeln('Using MSBuild at:' + buildExecutablePath.cyan);
