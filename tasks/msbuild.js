@@ -14,7 +14,9 @@ module.exports = function(grunt) {
         1.1: '1.1.4322',
         2.0: '2.0.50727',
         3.5: '3.5',
-        4.0: '4.0.30319'
+        4.0: '4.0.30319',
+        12.0: '12.0',
+        14.0: '14.0'
     };
 
     grunt.registerMultiTask('msbuild', 'Run MSBuild tasks', function() {
@@ -147,31 +149,43 @@ module.exports = function(grunt) {
             return 'xbuild';
         }
 
-        if (!version) {
-            var msBuild12x86Path = 'C:\\Program Files (x86)\\MSBuild\\12.0\\Bin\\MSBuild.exe';
-            var msBuild12x64Path = 'C:\\Program Files\\MSBuild\\12.0\\Bin\\MSBuild.exe';
+        // convert to numbers if correct strings
+        version = isNaN(version) ? version : parseFloat(version);
+        processor = isNaN(processor) ? processor : parseFloat(processor);
 
-            if (fs.existsSync(msBuild12x86Path)) {
-                grunt.verbose.writeln('Using MSBuild at:', msBuild12x86Path.cyan);
-                return msBuild12x86Path;
-            } else if (fs.existsSync(msBuild12x64Path)) {
-                grunt.verbose.writeln('Using MSBuild at:', msBuild12x64Path.cyan);
-                return msBuild12x64Path;
-            } else {
-                // Fallback to version 4.0
-                version = 4.0;
+        var programFiles = process.env['ProgramFiles(x86)'] || process.env.PROGRAMFILES;
+
+        if (!version) {
+            version = 4.0; // default fallback to version 4.0
+
+            var msbuildDir = path.join(programFiles, 'MSBuild');
+
+            if (fs.existsSync(msbuildDir)) {
+                var msbuildVersions = fs.readdirSync(msbuildDir)
+                    .filter(function(entryName) {
+                        return entryName.indexOf('1') === 0;
+                    });
+
+                if (msbuildVersions.length > 0) {
+                    // set latest installed msbuild version
+                    version = parseFloat(msbuildVersions[msbuildVersions.length - 1]);
+                }
             }
         }
-
-        processor = 'Framework' + (processor === 64 ? processor : '');
 
         var specificVersion = versions[version];
 
         if (!specificVersion) {
-            grunt.fatal('Unrecognised .NET framework version "' + version + '"');
+            grunt.fatal('Unrecognised MSBuild version "' + version + '"');
         }
 
-        var buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', processor, 'v' + specificVersion, 'MSBuild.exe');
+        if (version < 12) {
+            var frameworkDir = 'Framework' + (processor === 64 ? processor : '');
+            var buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', frameworkDir, 'v' + specificVersion, 'MSBuild.exe');
+        } else {
+            var x64Dir = processor === 64 ? 'amd64' : '';
+            var buildExecutablePath = path.join(programFiles, 'MSBuild', specificVersion, 'Bin', x64Dir, 'MSBuild.exe');
+        }
 
         grunt.verbose.writeln('Using MSBuild at:' + buildExecutablePath.cyan);
 
