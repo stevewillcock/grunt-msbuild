@@ -113,7 +113,7 @@ module.exports = function(grunt) {
         var args = [];
 
         if (src) {
-            var projectPath = path.normalize(path.resolve() + '/' + src);
+            var projectPath = path.normalize(src);
 
             args.push(projectPath);
         }
