@@ -40,6 +40,7 @@ module.exports = function(grunt) {
 
         var projectFunctions = [];
         var files = this.files;
+        var fileExists = false;
 
         if (files.length == 0) {
             files.push({src: ['']});
@@ -47,6 +48,7 @@ module.exports = function(grunt) {
 
         files.forEach(function(filePair) {
             filePair.src.forEach(function(src) {
+                fileExists = true;
                 projectFunctions.push(function(cb) {
                     build(src, options, cb);
                 });
@@ -56,6 +58,10 @@ module.exports = function(grunt) {
                 });
             });
         });
+        
+        if(!fileExists){
+            grunt.warn('No project or solution files found');
+        }
 
         async.series(projectFunctions, function() {
             asyncCallback();
