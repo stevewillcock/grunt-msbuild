@@ -58,7 +58,7 @@ module.exports = function(grunt) {
                 });
             });
         });
-        
+
         if(!fileExists){
             grunt.warn('No project or solution files found');
         }
@@ -96,14 +96,13 @@ module.exports = function(grunt) {
 
             if (code === 0) {
                 grunt.log.writeln('Build complete ' + projName.cyan);
-                cb();
             } else {
                 grunt.log.writeln(('MSBuild failed with code: ' + code).cyan + projName);
                 if (options.failOnError) {
                     grunt.warn('MSBuild exited with a failure code: ' + code);
                 }
             }
-
+            cb();
         });
 
     }
