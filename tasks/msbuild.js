@@ -125,8 +125,11 @@ module.exports = function(grunt) {
         }
 
         if (options.maxCpuCount) {
-            grunt.verbose.writeln('Using maxcpucount:', +options.maxCpuCount);
-            args.push('/maxcpucount:' + options.maxCpuCount);
+            // maxcpucount is not supported by xbuild
+            if (process.platform === 'win32') {
+                grunt.verbose.writeln('Using maxcpucount:', +options.maxCpuCount);
+                args.push('/maxcpucount:' + options.maxCpuCount);
+            }
         }
 
 	if (options.consoleLoggerParameters) {
