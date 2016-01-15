@@ -74,7 +74,7 @@ The version number is used to look up the MSBuild executable. Old MSBuild versio
 |12.0|12.0|
 |14.0|14.0|
 
-If a version is not passed the task will attempt to locate version 12 of MSBuild which is installed with Visual Studio 2013, and will then fallback to 4.0.
+If a version is not passed, the task will attempt to locate the latest version of MSBuild. Failing that, the task will fallback to 4.0.
 
 ## XBuild
 If this task is run on OS X or Linux it will assume that xbuild is in the path and use that instead of MSBuild.
@@ -98,6 +98,6 @@ Also see https://www.npmjs.org/doc/json.html#dependencies for details of how to 
 
 |Version| Notes|
 |-------|------|
-|2.0|This version replaces exec() with spawn() to improve memory usage and also to support coloured console output.This has been tested internally.
+|2.0|This version replaces exec() with spawn() to improve memory usage and also to support coloured console output. This has been tested internally.
 |0.1.12|Support for MSBuild 12 added|
 |0.1.11|...|
