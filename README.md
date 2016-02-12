@@ -1,6 +1,6 @@
 # grunt-msbuild
 
-> Build projects with MSBuild and XBuild using Grunt
+Build projects with MSBuild and XBuild using Grunt
 
 ## Getting Started
 This plugin requires Grunt `~0.4.0`. In other words it should work on 0.4.0 or higher.
