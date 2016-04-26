@@ -35,6 +35,8 @@ grunt.initConfig({
                 buildParameters: {
                     WarningLevel: 2
                 },
+                nodeReuse:false,
+                customArgs:[ '/noautoresponse', '/detailedsummary'],
                 verbosity: 'quiet'
             }
         }
@@ -50,8 +52,10 @@ grunt.initConfig({
 | targets                 | Targets to run            | Build
 | version                 | .NET version              | 4.0
 | maxCpuCount             | Number of cores to use    | 1
+| nodeReuse               | If msbuild should hang around    | false
 | consoleLoggerParameters | Customize Console Logger
 | buildParameters         | Additional [properties](http://msdn.microsoft.com/en-us/library/ms171458.aspx)
+| customArgs              | Additional args, see [MSBuild Command-Line Reference](http://msdn.microsoft.com/en-us/library/ms164311.aspx)
 | verbosity               | Verbosity level (quiet, minimal, normal, detailed or diagnostic) | normal
 
 For more information, see [MSBuild Command-Line Reference](http://msdn.microsoft.com/en-us/library/ms164311.aspx).
