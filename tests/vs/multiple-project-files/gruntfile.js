@@ -18,6 +18,7 @@ module.exports = function(grunt) {
 						WarningLevel: 2,
 						OutputPath: 'bin\\Debug'
 					},
+					customArgs:['/nr:false'],
 					verbosity: 'quiet'
 				}
 			}

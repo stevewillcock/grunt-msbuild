@@ -26,10 +26,12 @@ module.exports = function(grunt) {
         var options = this.options({
             targets: ['Build'],
             buildParameters: {},
+            customArgs:[],
             failOnError: true,
             verbosity: 'normal',
             processor: '',
-            nologo: true
+            nologo: true,
+            nodeReuse: true
         });
 
         if (!options.projectConfiguration) {
@@ -132,21 +134,29 @@ module.exports = function(grunt) {
             }
         }
 
-	if (options.consoleLoggerParameters) {
+        if (options.consoleLoggerParameters) {
             grunt.verbose.writeln('Using clp:' + options.consoleLoggerParameters);
-	    args.push('/clp:' + options.consoleLoggerParameters);
-	}
+            args.push('/clp:' + options.consoleLoggerParameters);
+        }
 
         args.push('/property:Configuration=' + options.projectConfiguration);
 
         if (options.platform) {
             args.push('/p:Platform=' + options.platform);
         }
-
+			
+        if (!options.nodeReuse) {
+            args.push('/nodeReuse:false');
+        }
+        
         for (var buildArg in options.buildParameters) {
             args.push('/property:' + buildArg + '=' + options.buildParameters[buildArg]);
         }
 
+        for (var customArg in options.customArgs) {
+            args.push(customArg);
+        }
+		
         return args;
     }
 
