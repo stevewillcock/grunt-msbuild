@@ -1,36 +1,36 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
-	// Project configuration.
+    // Project configuration.
 
-	grunt.initConfig({
+    grunt.initConfig({
 
-		msbuild: {
-			dev: {
-				src: ['../ConsoleApplication1/ConsoleApplication1/ConsoleApplication1.csproj',
-						'../ConsoleApplication2/ConsoleApplication2/ConsoleApplication2.csproj'
-				],
-				options: {
-					projectConfigurations: 'Debug',
-					targets: ['Clean', 'Rebuild'],
-					stdout: true,
-					maxCpuCount: 2,
-					buildParameters: {
-						WarningLevel: 2,
-						OutputPath: 'bin\\Debug'
-					},
-					customArgs:['/nr:false'],
-					verbosity: 'quiet'
-				}
-			}
-		}
-	});
+        msbuild: {
+            dev: {
+                src: ['../ConsoleApplication1/ConsoleApplication1/ConsoleApplication1.csproj',
+                    '../ConsoleApplication2/ConsoleApplication2/ConsoleApplication2.csproj'
+                ],
+                options: {
+                    projectConfigurations: 'Debug',
+                    targets: ['Clean', 'Rebuild'],
+                    stdout: true,
+                    maxCpuCount: 2,
+                    buildParameters: {
+                        WarningLevel: 2,
+                        OutputPath: 'bin\\Debug'
+                    },
+                    customArgs: ['/nr:false'],
+                    verbosity: 'quiet'
+                }
+            }
+        }
+    });
 
-	grunt.loadNpmTasks('grunt-msbuild');
+    grunt.loadTasks('../../../tasks/');
 
-	grunt.registerTask('continuationTest', function() {
-		grunt.log.writeln('continued OK...');
-	});
+    grunt.registerTask('continuationTest', function () {
+        grunt.log.writeln('continued OK...');
+    });
 
-	grunt.registerTask('default', ['msbuild', 'continuationTest']);
+    grunt.registerTask('default', ['msbuild', 'continuationTest']);
 
 };

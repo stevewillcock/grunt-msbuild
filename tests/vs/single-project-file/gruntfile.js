@@ -17,6 +17,7 @@ module.exports = function (grunt) {
                     },
                     nodeReuse:false,
                     verbosity: 'minimal',
+                    customArgs: ['/nr:false'],
                     execOptions: {
                         maxBuffer: 1000 * 1024
                     }
@@ -31,6 +32,6 @@ module.exports = function (grunt) {
         grunt.log.writeln('continued OK...');
     });
 
-    grunt.loadNpmTasks('grunt-msbuild');
+    grunt.loadTasks('../../../tasks/');
 
 };

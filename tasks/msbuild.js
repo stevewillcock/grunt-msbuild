@@ -1,4 +1,4 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
     'use strict';
 
@@ -19,14 +19,14 @@ module.exports = function(grunt) {
         14.0: '14.0'
     };
 
-    grunt.registerMultiTask('msbuild', 'Run MSBuild tasks', function() {
+    grunt.registerMultiTask('msbuild', 'Run MSBuild tasks', function () {
 
         var asyncCallback = this.async();
 
         var options = this.options({
             targets: ['Build'],
             buildParameters: {},
-            customArgs:[],
+            customArgs: [],
             failOnError: true,
             verbosity: 'normal',
             processor: '',
@@ -48,24 +48,25 @@ module.exports = function(grunt) {
             files.push({src: ['']});
         }
 
-        files.forEach(function(filePair) {
-            filePair.src.forEach(function(src) {
+        files.forEach(function (filePair) {
+            grunt.verbose.writeln('File ' + filePair + ' blah blah blah');
+            filePair.src.forEach(function (src) {
                 fileExists = true;
-                projectFunctions.push(function(cb) {
+                projectFunctions.push(function (cb) {
                     build(src, options, cb);
                 });
 
-                projectFunctions.push(function(cb) {
+                projectFunctions.push(function (cb) {
                     cb();
                 });
             });
         });
 
-        if(!fileExists){
+        if (!fileExists) {
             grunt.warn('No project or solution files found');
         }
 
-        async.series(projectFunctions, function() {
+        async.series(projectFunctions, function () {
             asyncCallback();
         });
 
@@ -92,7 +93,7 @@ module.exports = function(grunt) {
             stdio: 'inherit'
         });
 
-        cp.on('close', function(code) {
+        cp.on('close', function (code) {
             var success = code === 0;
             grunt.verbose.writeln('close received - code: ', success);
 
@@ -144,19 +145,22 @@ module.exports = function(grunt) {
         if (options.platform) {
             args.push('/p:Platform=' + options.platform);
         }
-			
+
         if (!options.nodeReuse) {
             args.push('/nodeReuse:false');
         }
-        
+
         for (var buildArg in options.buildParameters) {
-            args.push('/property:' + buildArg + '=' + options.buildParameters[buildArg]);
+            var p = '/property:' + buildArg + '=' + options.buildParameters[buildArg];
+            grunt.verbose.writeln('setting property: ' + p);
+            args.push(p);
         }
 
-        for (var customArg in options.customArgs) {
-            args.push(customArg);
-        }
-		
+        options.customArgs.forEach(function (a) {
+            grunt.verbose.writeln('setting customArg: ' + a);
+            args.push(a);
+        });
+
         return args;
     }
 
@@ -180,7 +184,7 @@ module.exports = function(grunt) {
 
             if (fs.existsSync(msbuildDir)) {
                 var msbuildVersions = fs.readdirSync(msbuildDir)
-                    .filter(function(entryName) {
+                    .filter(function (entryName) {
                         return entryName.indexOf('1') === 0;
                     });
 
@@ -197,12 +201,13 @@ module.exports = function(grunt) {
             grunt.fatal('Unrecognised MSBuild version "' + version + '"');
         }
 
+        var buildExecutablePath;
         if (version < 12) {
             var frameworkDir = 'Framework' + (processor === 64 ? processor : '');
-            var buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', frameworkDir, 'v' + specificVersion, 'MSBuild.exe');
+            buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', frameworkDir, 'v' + specificVersion, 'MSBuild.exe');
         } else {
             var x64Dir = processor === 64 ? 'amd64' : '';
-            var buildExecutablePath = path.join(programFiles, 'MSBuild', specificVersion, 'Bin', x64Dir, 'MSBuild.exe');
+            buildExecutablePath = path.join(programFiles, 'MSBuild', specificVersion, 'Bin', x64Dir, 'MSBuild.exe');
         }
 
         grunt.verbose.writeln('Using MSBuild at:' + buildExecutablePath.cyan);
