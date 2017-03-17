@@ -3,6 +3,7 @@ module.exports = function (grunt) {
     'use strict';
 
     var spawn = require('child_process').spawn,
+        execSync = require('child_process').execSync,
         path = require('path'),
         async = require('async'),
         fs = require('fs');
@@ -16,7 +17,9 @@ module.exports = function (grunt) {
         3.5: '3.5',
         4.0: '4.0.30319',
         12.0: '12.0',
-        14.0: '14.0'
+        14.0: '14.0',
+        15.0: '15.0',
+        17.0: '17.0'
     };
 
     grunt.registerMultiTask('msbuild', 'Run MSBuild tasks', function () {
@@ -164,6 +167,20 @@ module.exports = function (grunt) {
         return args;
     }
 
+    function inferMSBuildPathViaVSWhere(version) {
+        grunt.verbose.writeln('Using vswhere.exe to infer version of msbuild');
+        var result = execSync(path.resolve(__dirname, '../bin/vswhere.exe -latest -requires Microsoft.Component.MSBuild')).toString();
+        grunt.verbose.write(result);
+        var regex = new RegExp('[\n\r].*installationPath:\s*([^\n\r]*)');
+        var matches = result.match(regex);
+        grunt.verbose.write(matches);
+        if(!matches) return null;
+
+        var foundPath = matches[1].trim() + '/MSBuild/' + version + '.0/Bin/amd64/MSBuild.exe';
+        grunt.verbose.write('using ' + foundPath);
+        return path.normalize(foundPath);
+    }
+
     function createCommand(version, processor) {
 
         // temp mono xbuild usage for linux / osx - assumes xbuild is in the path, works on my machine...
@@ -172,13 +189,14 @@ module.exports = function (grunt) {
         }
 
         // convert to numbers if correct strings
-        version = isNaN(version) ? version : parseFloat(version);
-        processor = isNaN(processor) ? processor : parseFloat(processor);
+        grunt.verbose.writeln('version is currently ' + version);
+        version = typeof version === 'number' ? version : parseFloat(version || '0');
+        grunt.verbose.writeln('version is currently ' + version);
+        processor = typeof processor === 'number' ? processor : parseFloat(processor || '0');
 
         var programFiles = process.env['ProgramFiles(x86)'] || process.env.PROGRAMFILES;
 
-        if (!version) {
-            version = 4.0; // default fallback to version 4.0
+        if (!version || version > 14) {
 
             var msbuildDir = path.join(programFiles, 'MSBuild');
 
@@ -193,6 +211,15 @@ module.exports = function (grunt) {
                     version = parseFloat(msbuildVersions[msbuildVersions.length - 1]);
                 }
             }
+
+            // Try to infer the msbuild path using vswhere.exe
+            var vsWhereMSBuildPath = inferMSBuildPathViaVSWhere(version);
+
+            if (vsWhereMSBuildPath) {
+                grunt.verbose.writeln('MSBuild location inferred via vswhere - using ' + vsWhereMSBuildPath);
+                return vsWhereMSBuildPath;
+            }
+
         }
 
         var specificVersion = versions[version];
