@@ -171,7 +171,7 @@ module.exports = function (grunt) {
         grunt.verbose.writeln('Using vswhere.exe to infer version of msbuild');
         var exePath = path.resolve(__dirname, '../bin/vswhere.exe' ); // -latest -requires Microsoft.Component.MSBuild');
         var quotedExePath = '"' + exePath + '"';
-        var quotedExePathWithArgs = quotedExePath + ' -latest -requires Microsoft.Component.MSBuild';
+        var quotedExePathWithArgs = quotedExePath + ' -latest -products * -requires Microsoft.Component.MSBuild';
         grunt.verbose.write('using quoted exe path: ' + quotedExePathWithArgs);
         var result = execSync(quotedExePathWithArgs).toString();
         grunt.verbose.write(result);
