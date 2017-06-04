@@ -154,7 +154,7 @@ module.exports = function (grunt) {
         }
 
         if (options.visualStudioVersion) {
-            args.push('/p:VisualStudioVersion=' + options.visualStudioVersion);
+            args.push('/p:VisualStudioVersion=' + options.visualStudioVersion + '.0');
         }
 
         for (var buildArg in options.buildParameters) {
