@@ -153,6 +153,10 @@ module.exports = function (grunt) {
             args.push('/nodeReuse:false');
         }
 
+        if (options.visualStudioVersion) {
+            args.push('/p:VisualStudioVersion=' + options.visualStudioVersion);
+        }
+
         for (var buildArg in options.buildParameters) {
             var p = '/property:' + buildArg + '=' + options.buildParameters[buildArg];
             grunt.verbose.writeln('setting property: ' + p);
