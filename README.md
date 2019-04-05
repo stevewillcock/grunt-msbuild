@@ -29,15 +29,15 @@ grunt.initConfig({
             src: ['ConsoleApplication5.csproj'],
             options: {
                 projectConfiguration: 'Debug',
-                targets: ['Clean', 'Rebuild'],
-                version: 4.0,
+                targets: ['Clean', 'Rebuild'],               
                 maxCpuCount: 4,
                 buildParameters: {
                     WarningLevel: 2
                 },
                 nodeReuse:true,
                 customArgs:[ '/noautoresponse', '/detailedsummary'],
-                verbosity: 'quiet'
+                verbosity: 'quiet',
+                msbuildPath: 'C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\amd64\\MSBuild.exe'
             }
         }
     }
@@ -50,35 +50,28 @@ grunt.initConfig({
 |------------------------ |-------------------------- | -------
 | projectConfiguration    | Configuration to pick     | Release
 | targets                 | Targets to run            | Build
-| version                 | .NET version              | 4.0
 | maxCpuCount             | Number of cores to use    | 1
 | nodeReuse               | If msbuild should hang around    | true
 | consoleLoggerParameters | Customize Console Logger
 | buildParameters         | Additional [properties](http://msdn.microsoft.com/en-us/library/ms171458.aspx)
 | customArgs              | Additional args, see [MSBuild Command-Line Reference](http://msdn.microsoft.com/en-us/library/ms164311.aspx)
 | verbosity               | Verbosity level (quiet, minimal, normal, detailed or diagnostic) | normal
+| msbuildPath             | Path to MSBuild.exe. Required. 
 
 For more information, see [MSBuild Command-Line Reference](http://msdn.microsoft.com/en-us/library/ms164311.aspx).
 
+
 ## MSBuild version selection
-Pass a version parameter to the task options as shown above to select a specific MSBuild version.
+The required field msbuildPath is used to target your msbuild version. 
+Example values for msbuildPath:
+```
+C:\\Program Files (x86)\\MSBuild\\MSBuild\\<VERSION>\\Bin\\amd64\\MSBuild.exe
 
-The version number is used to look up the MSBuild executable. Old MSBuild versions are installed to the corresponding .NET Framework directory (under `C:\Windows\Microsoft.NET\Framework`). Recent MSBuild versions are installed to program files (`C:\Program Files (x86)\MSBuild`). The following version mappings are used:
+C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\<YOUR_EDITION>\\MSBuild\\15.0\\Bin\\amd64\\MSBuild.exe
 
-|Version| .NET Framework directory|
-|-------|-------------------------|
-|1.0|1.0.3705|
-|1.1|1.1.4322|
-|2.0|2.0.50727|
-|3.5|3.5|
-|4.0|4.0.30319|
+C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\<YOUR_EDITION>\\MSBuild\\Current\\Bin\\amd64\\MSBuild.exe
+```
 
-|Version|MSBuild directory|
-|-------|-----------------|
-|12.0|12.0|
-|14.0|14.0|
-
-If a version is not passed, the task will attempt to locate the latest version of MSBuild. Failing that, the task will fallback to 4.0.
 
 ## XBuild
 If this task is run on OS X or Linux it will assume that xbuild is in the path and use that instead of MSBuild.
@@ -102,6 +95,7 @@ Also see https://www.npmjs.org/doc/json.html#dependencies for details of how to 
 
 |Version| Notes|
 |-------|------|
+|3.0|This version replaces the version option with msbuildPath to support MSBuild versions moving forward from Visual Studio 2019.
 |2.0|This version replaces exec() with spawn() to improve memory usage and also to support coloured console output. This has been tested internally.
 |0.1.12|Support for MSBuild 12 added|
 |0.1.11|...|
