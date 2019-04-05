@@ -10,18 +10,6 @@ module.exports = function (grunt) {
 
     var _ = grunt.util._;
 
-    var versions = {
-        1.0: '1.0.3705',
-        1.1: '1.1.4322',
-        2.0: '2.0.50727',
-        3.5: '3.5',
-        4.0: '4.0.30319',
-        12.0: '12.0',
-        14.0: '14.0',
-        15.0: '15.0',
-        17.0: '17.0'
-    };
-
     grunt.registerMultiTask('msbuild', 'Run MSBuild tasks', function () {
 
         var asyncCallback = this.async();
@@ -81,7 +69,7 @@ module.exports = function (grunt) {
 
         grunt.log.writeln('Building ' + projName.cyan);
 
-        var cmd = createCommand(options.version || null, options.processor);
+        var cmd = options.msbuildPath;
         var args = createCommandArgs(src, options);
 
         grunt.verbose.writeln('Using cmd:', cmd);
@@ -169,90 +157,6 @@ module.exports = function (grunt) {
         });
 
         return args;
-    }
-
-    function inferMSBuildPathViaVSWhere(version) {
-        grunt.verbose.writeln('Using vswhere.exe to infer version of msbuild');
-        var exePath = path.resolve(__dirname, '../bin/vswhere.exe' ); // -latest -requires Microsoft.Component.MSBuild');
-        var quotedExePath = '"' + exePath + '"';
-        var quotedExePathWithArgs = quotedExePath + ' -latest -products * -requires Microsoft.Component.MSBuild';
-        grunt.verbose.write('using quoted exe path: ' + quotedExePathWithArgs);
-        var result = execSync(quotedExePathWithArgs).toString();
-        grunt.verbose.write(result);
-        var regex = new RegExp('[\n\r].*installationPath:\s*([^\n\r]*)');
-        var matches = result.match(regex);
-        grunt.verbose.write(matches);
-        if(!matches) return null;
-
-        var foundPath = matches[1].trim() + '/MSBuild/' + version + '.0/Bin/amd64/MSBuild.exe';
-        grunt.verbose.write('using ' + foundPath);
-        return path.normalize(foundPath);
-    }
-
-    function createCommand(version, processor) {
-
-        // temp mono xbuild usage for linux / osx - assumes xbuild is in the path, works on my machine...
-        if (process.platform === 'linux' || process.platform === 'darwin') {
-            return 'xbuild';
-        }
-
-        // convert to numbers if correct strings
-        grunt.verbose.writeln('version is currently ' + version);
-        version = typeof version === 'number' ? version : parseFloat(version || '0');
-        grunt.verbose.writeln('version is currently ' + version);
-        processor = typeof processor === 'number' ? processor : parseFloat(processor || '0');
-
-        var programFiles = process.env['ProgramFiles(x86)'] || process.env.PROGRAMFILES;
-
-        if (!version || version > 14) {
-
-            var msbuildDir = path.join(programFiles, 'MSBuild');
-
-            if (fs.existsSync(msbuildDir)) {
-                var msbuildVersions = fs.readdirSync(msbuildDir)
-                    .filter(function (entryName) {
-                        return entryName.indexOf('1') === 0;
-                    });
-
-                if (msbuildVersions.length > 0) {
-                    // set latest installed msbuild version
-                    version = parseFloat(msbuildVersions[msbuildVersions.length - 1]);
-                }
-            }
-
-            // Try to infer the msbuild path using vswhere.exe
-            var vsWhereMSBuildPath = inferMSBuildPathViaVSWhere(version);
-
-            if (vsWhereMSBuildPath) {
-                grunt.verbose.writeln('MSBuild location inferred via vswhere - using ' + vsWhereMSBuildPath);
-                return vsWhereMSBuildPath;
-            }
-
-        }
-
-        var specificVersion = versions[version];
-
-        if (!specificVersion) {
-            grunt.fatal('Unrecognised MSBuild version "' + version + '"');
-        }
-
-        var buildExecutablePath;
-        if (version < 12) {
-            var frameworkDir = 'Framework' + (processor === 64 ? processor : '');
-            buildExecutablePath = path.join(process.env.WINDIR, 'Microsoft.Net', frameworkDir, 'v' + specificVersion, 'MSBuild.exe');
-        } else {
-            var x64Dir = processor === 64 ? 'amd64' : '';
-            buildExecutablePath = path.join(programFiles, 'MSBuild', specificVersion, 'Bin', x64Dir, 'MSBuild.exe');
-        }
-
-        grunt.verbose.writeln('Using MSBuild at:' + buildExecutablePath.cyan);
-
-        if (!fs.existsSync(buildExecutablePath)) {
-            grunt.fatal('Unable to find MSBuild executable');
-        }
-
-        return path.normalize(buildExecutablePath);
-
     }
 
 };
