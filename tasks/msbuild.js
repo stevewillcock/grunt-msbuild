@@ -3,10 +3,8 @@ module.exports = function (grunt) {
     'use strict';
 
     var spawn = require('child_process').spawn,
-        execSync = require('child_process').execSync,
         path = require('path'),
-        async = require('async'),
-        fs = require('fs');
+        async = require('async');
 
     var _ = grunt.util._;
 
@@ -35,12 +33,12 @@ module.exports = function (grunt) {
         var files = this.files;
         var fileExists = false;
 
-        if (files.length == 0) {
+        if (files.length === 0) {
             files.push({src: ['']});
         }
 
         files.forEach(function (filePair) {
-            grunt.verbose.writeln('File ' + filePair + ' blah blah blah');
+            grunt.verbose.writeln('File ' + filePair);
             filePair.src.forEach(function (src) {
                 fileExists = true;
                 projectFunctions.push(function (cb) {
@@ -69,6 +67,14 @@ module.exports = function (grunt) {
 
         grunt.log.writeln('Building ' + projName.cyan);
 
+        if(!options.msbuildPath) {
+            grunt.fail.warn('options.msbuildPath not set')
+        }
+
+        if(!grunt.file.exists(options.msbuildPath)) {
+            grunt.fail.warn('Unable to find file [' + options.msbuildPath + '] (this is set via options.msbuildPath)')
+        }
+
         var cmd = options.msbuildPath;
         var args = createCommandArgs(src, options);
 
@@ -78,7 +84,6 @@ module.exports = function (grunt) {
         if (!cmd) {
             return;
         }
-
 
         var cp = spawn(cmd, args, {
             stdio: 'inherit'

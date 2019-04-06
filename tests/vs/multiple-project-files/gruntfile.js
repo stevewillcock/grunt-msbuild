@@ -19,7 +19,8 @@ module.exports = function (grunt) {
                         OutputPath: 'bin\\Debug'
                     },
                     customArgs: ['/nr:false'],
-                    verbosity: 'quiet'
+                    verbosity: 'quiet',
+                    msbuildPath: 'msbuild'
                 }
             }
         }

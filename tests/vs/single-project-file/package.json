@@ -10,6 +10,9 @@
   "author": "",
   "license": "BSD",
   "devDependencies": {
-    "grunt": "~0.4.1"
+    "grunt": "1.0.4"
+  },
+  "dependencies": {
+    "grunt-msbuild": "file:../../.."
   }
 }
