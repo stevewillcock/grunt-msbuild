@@ -70,11 +70,11 @@ C:\\Program Files (x86)\\MSBuild\\MSBuild\\<VERSION>\\Bin\\amd64\\MSBuild.exe
 C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\<YOUR_EDITION>\\MSBuild\\15.0\\Bin\\amd64\\MSBuild.exe
 
 C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\<YOUR_EDITION>\\MSBuild\\Current\\Bin\\amd64\\MSBuild.exe
+
+msbuild  (This will work if msbuild is available on the path for example)
+
 ```
 
-
-## XBuild
-If this task is run on OS X or Linux it will assume that xbuild is in the path and use that instead of MSBuild.
 
 ## Contributing
 All contributions welcome :) Add to the VS integration tests for any new or changed functionality if possible.

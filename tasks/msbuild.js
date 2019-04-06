@@ -71,10 +71,6 @@ module.exports = function (grunt) {
             grunt.fail.warn('options.msbuildPath not set')
         }
 
-        if(!grunt.file.exists(options.msbuildPath)) {
-            grunt.fail.warn('Unable to find file [' + options.msbuildPath + '] (this is set via options.msbuildPath)')
-        }
-
         var cmd = options.msbuildPath;
         var args = createCommandArgs(src, options);
 
