@@ -95,7 +95,7 @@ Also see https://www.npmjs.org/doc/json.html#dependencies for details of how to 
 
 |Version| Notes|
 |-------|------|
-|3.0|This version replaces the version option with msbuildPath to support MSBuild versions moving forward from Visual Studio 2019.
-|2.0|This version replaces exec() with spawn() to improve memory usage and also to support coloured console output. This has been tested internally.
+|1.0|This version replaces the version option with msbuildPath to support MSBuild versions moving forward from Visual Studio 2019.
+|0.2.0|This version replaces exec() with spawn() to improve memory usage and also to support coloured console output. This has been tested internally.
 |0.1.12|Support for MSBuild 12 added|
 |0.1.11|...|
