@@ -21,7 +21,8 @@ module.exports = function (grunt) {
                     execOptions: {
                         maxBuffer: 1000 * 1024
                     },
-                    msbuildPath: 'C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\MSBuild\\15.0\\Bin\\MSBuild.exe'
+                    msbuildPath: 'C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\MSBuild\\15.0\\Bin\\MSBuild.exe',
+                    inferMsbuildPath: false
                 }
             }
         }

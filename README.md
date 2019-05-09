@@ -37,7 +37,8 @@ grunt.initConfig({
                 nodeReuse:true,
                 customArgs:[ '/noautoresponse', '/detailedsummary'],
                 verbosity: 'quiet',
-                msbuildPath: 'C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\amd64\\MSBuild.exe'
+                msbuildPath: 'C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\amd64\\MSBuild.exe',
+                inferMsbuildPath:false
             }
         }
     }
@@ -56,13 +57,16 @@ grunt.initConfig({
 | buildParameters         | Additional [properties](http://msdn.microsoft.com/en-us/library/ms171458.aspx)
 | customArgs              | Additional args, see [MSBuild Command-Line Reference](http://msdn.microsoft.com/en-us/library/ms164311.aspx)
 | verbosity               | Verbosity level (quiet, minimal, normal, detailed or diagnostic) | normal
-| msbuildPath             | Path to MSBuild.exe. Required. 
+| msbuildPath             | Path to MSBuild.exe. Required if inferMsbuildPath is not set to true.
+| inferMsbuildPath        | If the msbuildpath should be inferred using vswhere. Overrides the given msbuildPath value. | false
 
 For more information, see [MSBuild Command-Line Reference](http://msdn.microsoft.com/en-us/library/ms164311.aspx).
 
 
 ## MSBuild version selection
-The required field msbuildPath is used to target your msbuild version. 
+If inferMsbuildPath is set to true, grunt-masbuild will try to infer the msbuildpath using vswhere.exe.
+Otherwise, you should set msbuildPath option. msbuildPath is used to target your msbuild version.
+
 Example values for msbuildPath:
 ```
 C:\\Program Files (x86)\\MSBuild\\MSBuild\\<VERSION>\\Bin\\amd64\\MSBuild.exe
