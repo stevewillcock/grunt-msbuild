@@ -20,7 +20,7 @@ module.exports = function (grunt) {
                     },
                     customArgs: ['/nr:false'],
                     verbosity: 'quiet',
-                    msbuildPath: 'msbuild'
+                    inferMsbuildPath: true
                 }
             }
         }

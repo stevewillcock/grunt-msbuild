@@ -4,6 +4,7 @@ module.exports = function (grunt) {
 
     var spawn = require('child_process').spawn,
         path = require('path'),
+        execSync = require('child_process').execSync,
         async = require('async');
 
     var _ = grunt.util._;
@@ -20,7 +21,8 @@ module.exports = function (grunt) {
             verbosity: 'normal',
             processor: '',
             nologo: true,
-            nodeReuse: true
+            nodeReuse: true,
+            inferMsbuildPath: false
         });
 
         if (!options.projectConfiguration) {
@@ -67,11 +69,15 @@ module.exports = function (grunt) {
 
         grunt.log.writeln('Building ' + projName.cyan);
 
-        if(!options.msbuildPath) {
-            grunt.fail.warn('options.msbuildPath not set')
+        if(!options.msbuildPath && !options.inferMsbuildPath) {
+            grunt.fail.warn('options.msbuildPath not set. Either set the path, or set inferMsbuildPath to true')
         }
 
         var cmd = options.msbuildPath;
+        if (options.inferMsbuildPath)
+        {
+            cmd = inferMSBuildPathViaVSWhere();
+        }
         var args = createCommandArgs(src, options);
 
         grunt.verbose.writeln('Using cmd:', cmd);
@@ -100,6 +106,32 @@ module.exports = function (grunt) {
             cb();
         });
 
+    }
+
+    function inferMSBuildPathViaVSWhere() {
+        
+        grunt.verbose.writeln('Using vswhere.exe to infer path for msbuild');
+        
+        var exePath = path.resolve(__dirname, '../bin/vswhere.exe' );
+        var quotedExePath = '"' + exePath + '"';
+        var quotedExePathWithArgs = quotedExePath + ' -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\\**\\MSBuild.exe';
+        
+        grunt.verbose.writeln('using quoted exe path: ' + quotedExePathWithArgs);
+        
+        var resultString = execSync(quotedExePathWithArgs).toString();
+        grunt.verbose.writeln("vswhere results start");
+        grunt.verbose.writeln(resultString);
+        grunt.verbose.writeln("vswhere results end");
+        
+        var results = resultString.split('\r')
+        grunt.verbose.writeln("vswhere first result:");
+		grunt.verbose.writeln(results[0])
+        
+        var normalisedPath = path.normalize(results[0]);
+        grunt.verbose.writeln("vswhere result normalised path: ");
+        grunt.verbose.writeln(normalisedPath);
+
+        return normalisedPath;
     }
 
     function createCommandArgs(src, options) {
