@@ -109,16 +109,29 @@ module.exports = function (grunt) {
     }
 
     function inferMSBuildPathViaVSWhere() {
+        
         grunt.verbose.writeln('Using vswhere.exe to infer path for msbuild');
+        
         var exePath = path.resolve(__dirname, '../bin/vswhere.exe' );
         var quotedExePath = '"' + exePath + '"';
         var quotedExePathWithArgs = quotedExePath + ' -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\\**\\MSBuild.exe';
-        grunt.verbose.write('using quoted exe path: ' + quotedExePathWithArgs);
+        
+        grunt.verbose.writeln('using quoted exe path: ' + quotedExePathWithArgs);
+        
         var resultString = execSync(quotedExePathWithArgs).toString();
-        grunt.verbose.write(resultString);
-		var results = resultString.split('\r')
-		grunt.verbose.write(results[0])
-        return path.normalize(results[0]);
+        grunt.verbose.writeln("vswhere results start");
+        grunt.verbose.writeln(resultString);
+        grunt.verbose.writeln("vswhere results end");
+        
+        var results = resultString.split('\r')
+        grunt.verbose.writeln("vswhere first result:");
+		grunt.verbose.writeln(results[0])
+        
+        var normalisedPath = path.normalize(results[0]);
+        grunt.verbose.writeln("vswhere result normalised path: ");
+        grunt.verbose.writeln(normalisedPath);
+
+        return normalisedPath;
     }
 
     function createCommandArgs(src, options) {
