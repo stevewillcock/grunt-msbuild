@@ -1,195 +1,232 @@
 module.exports = function (grunt) {
 
-    'use strict';
+	"use strict";
 
-    var spawn = require('child_process').spawn,
-        path = require('path'),
-        execSync = require('child_process').execSync,
-        async = require('async');
+	var spawn = require("child_process").spawn,
+		path = require("path"),
+		execSync = require("child_process").execSync,
+		async = require("async")
 
-    var _ = grunt.util._;
+	var _ = grunt.util._;
 
-    grunt.registerMultiTask('msbuild', 'Run MSBuild tasks', function () {
+	grunt.registerMultiTask("msbuild", "Run MSBuild tasks", function () {
+		var asyncCallback = this.async();
 
-        var asyncCallback = this.async();
+		var options = this.options({
+			buildParameters: {},
+			consoleLoggerParameters: undefined,
+			customArgs: [],
+			failOnError: true,
+			inferMsbuildPath: false,
+			maxCpuCount: 1,
+			msbuildPath: "",
+			nodeReuse: true,
+			nologo: true,
+			platform: undefined,
+			projectConfiguration: "Release",
+			targets: ["Build"],
+			verbosity: "normal",
+			visualStudioVersion: undefined,
+			vswhereProducts: undefined,			// default value "*" is set later in setParams()
+			vswhereVersion: undefined
+		});
 
-        var options = this.options({
-            targets: ['Build'],
-            buildParameters: {},
-            customArgs: [],
-            failOnError: true,
-            verbosity: 'normal',
-            processor: '',
-            nologo: true,
-            nodeReuse: true,
-            inferMsbuildPath: false
-        });
+		grunt.verbose.writeln("Using Options: " + JSON.stringify(options, undefined, 4).cyan);
 
-        if (!options.projectConfiguration) {
-            options.projectConfiguration = 'Release';
-        }
+		var projectFunctions = [];
+		var files = this.files;
+		var fileExists = false;
 
-        grunt.verbose.writeln('Using Options: ' + JSON.stringify(options, null, 4).cyan);
+		if (files.length === 0) {
+			files.push({ src: [""] });
+		}
 
-        var projectFunctions = [];
-        var files = this.files;
-        var fileExists = false;
+		files.forEach(function (filePair) {
+			grunt.verbose.writeln("File " + JSON.stringify(filePair, undefined, 4));
+			filePair.src.forEach(function (src) {
+				fileExists = true;
+				projectFunctions.push(function (cb) {
+					build(src, options, cb);
+				});
 
-        if (files.length === 0) {
-            files.push({src: ['']});
-        }
+				projectFunctions.push(function (cb) {
+					cb();
+				});
+			});
+		});
 
-        files.forEach(function (filePair) {
-            grunt.verbose.writeln('File ' + filePair);
-            filePair.src.forEach(function (src) {
-                fileExists = true;
-                projectFunctions.push(function (cb) {
-                    build(src, options, cb);
-                });
+		if (!fileExists) {
+			grunt.warn("No project or solution files found");
+		}
 
-                projectFunctions.push(function (cb) {
-                    cb();
-                });
-            });
-        });
+		async.series(projectFunctions, function () {
+			asyncCallback();
+		});
+	});
 
-        if (!fileExists) {
-            grunt.warn('No project or solution files found');
-        }
+	function build(src, options, cb) {
+		var projName = src || path.basename(process.cwd());
 
-        async.series(projectFunctions, function () {
-            asyncCallback();
-        });
+		grunt.log.writeln("Building " + projName.cyan);
 
-    });
+		if (!options.msbuildPath && !options.inferMsbuildPath) {
+			grunt.fail.warn("options.msbuildPath not set. Either set the path, or set inferMsbuildPath to true");
+		}
+		if (!options.inferMsbuildPath) {
+			if (options.vswhereProducts) {
+				grunt.log.writeln("options.msbuildPath not set. So options.vswhereProducts is ignored");
+			}
+			if (options.vswhereVersion) {
+				grunt.log.writeln("options.msbuildPath not set. So options.vswhereVersion is ignored");
+			}
+		}
 
-    function build(src, options, cb) {
+		var cmd = options.msbuildPath;
+		if (options.inferMsbuildPath) {
+			cmd = inferMSBuildPathViaVSWhere(options.vswhereProducts, options.vswhereVersion);
+		}
+		var args = createCommandArgs(src, options);
 
-        var projName = src || path.basename(process.cwd());
+		grunt.verbose.writeln("Using cmd:", cmd);
+		grunt.verbose.writeln("Using args:", args);
 
-        grunt.log.writeln('Building ' + projName.cyan);
+		if (!cmd) {
+			return;
+		}
 
-        if(!options.msbuildPath && !options.inferMsbuildPath) {
-            grunt.fail.warn('options.msbuildPath not set. Either set the path, or set inferMsbuildPath to true')
-        }
+		var cp = spawn(cmd, args, {
+			stdio: "inherit"
+		});
 
-        var cmd = options.msbuildPath;
-        if (options.inferMsbuildPath)
-        {
-            cmd = inferMSBuildPathViaVSWhere();
-        }
-        var args = createCommandArgs(src, options);
+		cp.on("close", function (code) {
+			var success = code === 0;
+			grunt.verbose.writeln("close received - code: ", success);
 
-        grunt.verbose.writeln('Using cmd:', cmd);
-        grunt.verbose.writeln('Using args:', args);
+			if (code === 0) {
+				grunt.log.writeln("Build complete " + projName.cyan);
+			} else {
+				grunt.log.writeln(("MSBuild failed with code: " + code).cyan + projName);
+				if (options.failOnError) {
+					grunt.warn("MSBuild exited with a failure code: " + code);
+				}
+			}
+			cb();
+		});
+	}
 
-        if (!cmd) {
-            return;
-        }
+	/**
+	 *
+	 * @param param type: string|string[]
+	 * @output type: string[]
+	 */
+	function prepareParam(param) {
+		let ret = param;
+		if (param && !Array.isArray(param)) {
+			ret = [param];
+		}
+		return ret;
+	}
 
-        var cp = spawn(cmd, args, {
-            stdio: 'inherit'
-        });
+	/**
+	 *
+	 * @param vswhereProducts type: string|string[]
+	 * @param vswhereVersion type: string
+	 * @output type: string[]
+	 */
+	function setParams(vswhereProducts, vswhereVersion) {
+		const params = ["-latest", "-requires Microsoft.Component.MSBuild", "-find MSBuild\\**\\MSBuild.exe"];
 
-        cp.on('close', function (code) {
-            var success = code === 0;
-            grunt.verbose.writeln('close received - code: ', success);
+		if (vswhereVersion) {
+			params.push(` -version ${vswhereVersion}`);
+		}
+		if (!vswhereProducts && !vswhereVersion) {
+			// default value set here - Note: * could not be used when vswhere -version option is used
+			params.push(` -products *`);
+		} else if (vswhereProducts) {
+			params.push(`-products ${prepareParam(vswhereProducts).join(" ")}`);
+		}
+		return params;
+	}
 
-            if (code === 0) {
-                grunt.log.writeln('Build complete ' + projName.cyan);
-            } else {
-                grunt.log.writeln(('MSBuild failed with code: ' + code).cyan + projName);
-                if (options.failOnError) {
-                    grunt.warn('MSBuild exited with a failure code: ' + code);
-                }
-            }
-            cb();
-        });
+	function inferMSBuildPathViaVSWhere(vswhereProducts, vswhereVersion) {
+		grunt.verbose.writeln("Using vswhere.exe to infer path for msbuild ");
 
-    }
+		var exePath = path.resolve(__dirname, "../bin/vswhere.exe");
 
-    function inferMSBuildPathViaVSWhere() {
-        
-        grunt.verbose.writeln('Using vswhere.exe to infer path for msbuild');
-        
-        var exePath = path.resolve(__dirname, '../bin/vswhere.exe' );
-        var quotedExePath = '"' + exePath + '"';
-        var quotedExePathWithArgs = quotedExePath + ' -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\\**\\MSBuild.exe';
-        
-        grunt.verbose.writeln('using quoted exe path: ' + quotedExePathWithArgs);
-        
-        var resultString = execSync(quotedExePathWithArgs).toString();
-        grunt.verbose.writeln("vswhere results start");
-        grunt.verbose.writeln(resultString);
-        grunt.verbose.writeln("vswhere results end");
-        
-        var results = resultString.split('\r')
-        grunt.verbose.writeln("vswhere first result:");
-		grunt.verbose.writeln(results[0])
-        
-        var normalisedPath = path.normalize(results[0]);
-        grunt.verbose.writeln("vswhere result normalised path: ");
-        grunt.verbose.writeln(normalisedPath);
+		var quotedExePathWithArgs = `"${ exePath }" ${ setParams(vswhereProducts, vswhereVersion).join(" ") }`;
 
-        return normalisedPath;
-    }
+		grunt.verbose.writeln("using quoted exe path: " + quotedExePathWithArgs);
 
-    function createCommandArgs(src, options) {
+		var resultString = execSync(quotedExePathWithArgs).toString();
+		grunt.verbose.writeln("vswhere results start");
+		grunt.verbose.writeln(resultString);
+		grunt.verbose.writeln("vswhere results end");
 
-        var args = [];
+		var results = resultString.split("\r");
+		grunt.verbose.writeln("vswhere first result:");
+		grunt.verbose.writeln(results[0]);
 
-        if (src) {
-            var projectPath = path.normalize(src);
+		var normalisedPath = path.normalize(results[0]);
+		grunt.verbose.writeln("vswhere result normalised path: ");
+		grunt.verbose.writeln(normalisedPath);
 
-            args.push(projectPath);
-        }
+		return normalisedPath;
+	}
 
-        args.push('/target:' + options.targets);
-        args.push('/verbosity:' + options.verbosity);
+	function createCommandArgs(src, options) {
+		var args = [];
 
-        if (options.nologo) {
-            args.push('/nologo');
-        }
+		if (src) {
+			var projectPath = path.normalize(src);
 
-        if (options.maxCpuCount) {
-            // maxcpucount is not supported by xbuild
-            if (process.platform === 'win32') {
-                grunt.verbose.writeln('Using maxcpucount:', +options.maxCpuCount);
-                args.push('/maxcpucount:' + options.maxCpuCount);
-            }
-        }
+			args.push(projectPath);
+		}
 
-        if (options.consoleLoggerParameters) {
-            grunt.verbose.writeln('Using clp:' + options.consoleLoggerParameters);
-            args.push('/clp:' + options.consoleLoggerParameters);
-        }
+		args.push("/target:" + options.targets);
+		args.push("/verbosity:" + options.verbosity);
 
-        args.push('/property:Configuration=' + options.projectConfiguration);
+		if (options.nologo) {
+			args.push("/nologo");
+		}
 
-        if (options.platform) {
-            args.push('/p:Platform=' + options.platform);
-        }
+		if (options.maxCpuCount) {
+			// maxcpucount is not supported by xbuild
+			if (process.platform === "win32") {
+				grunt.verbose.writeln("Using maxcpucount:", +options.maxCpuCount);
+				args.push("/maxcpucount:" + options.maxCpuCount);
+			}
+		}
 
-        if (!options.nodeReuse) {
-            args.push('/nodeReuse:false');
-        }
+		if (options.consoleLoggerParameters) {
+			grunt.verbose.writeln("Using clp:" + options.consoleLoggerParameters);
+			args.push("/clp:" + options.consoleLoggerParameters);
+		}
 
-        if (options.visualStudioVersion) {
-            args.push('/p:VisualStudioVersion=' + options.visualStudioVersion + '.0');
-        }
+		args.push("/property:Configuration=" + options.projectConfiguration);
 
-        for (var buildArg in options.buildParameters) {
-            var p = '/property:' + buildArg + '=' + options.buildParameters[buildArg];
-            grunt.verbose.writeln('setting property: ' + p);
-            args.push(p);
-        }
+		if (options.platform) {
+			args.push("/p:Platform=" + options.platform);
+		}
 
-        options.customArgs.forEach(function (a) {
-            grunt.verbose.writeln('setting customArg: ' + a);
-            args.push(a);
-        });
+		if (!options.nodeReuse) {
+			args.push("/nodeReuse:false");
+		}
 
-        return args;
-    }
+		if (options.visualStudioVersion) {
+			args.push("/p:VisualStudioVersion=" + options.visualStudioVersion + ".0");
+		}
 
+		for (var buildArg in options.buildParameters) {
+			var p = "/property:" + buildArg + "=" + options.buildParameters[buildArg];
+			grunt.verbose.writeln("setting property: " + p);
+			args.push(p);
+		}
+
+		options.customArgs.forEach(function (a) {
+			grunt.verbose.writeln("setting customArg: " + a);
+			args.push(a);
+		});
+
+		return args;
+	}
 };
