@@ -55,10 +55,14 @@ grunt.initConfig({
 | targets                 | Targets to run            | Build
 | maxCpuCount             | Number of cores to use    | 1
 | nodeReuse               | If msbuild should hang around    | true
+| failOnError             | If this grunt-msbuild should fail on error | true
 | consoleLoggerParameters | Customize Console Logger
+| visualStudioVersion     | Set VisualStudio version property to a special version i.e. 15
+| platform                | Platform msbuild should use i.e. "Win32"
 | buildParameters         | Additional [properties](http://msdn.microsoft.com/en-us/library/ms171458.aspx)
 | customArgs              | Additional args, see [MSBuild Command-Line Reference](http://msdn.microsoft.com/en-us/library/ms164311.aspx)
 | verbosity               | Verbosity level (quiet, minimal, normal, detailed or diagnostic) | normal
+| nologo                  | If msbuild should hide logo | true
 | msbuildPath             | Path to MSBuild.exe. Required if inferMsbuildPath is not set to true.
 | inferMsbuildPath        | If the msbuildpath should be inferred using vswhere. Overrides the given msbuildPath value. | false
 | vswhereProducts  | Ignored if inferMsbuildPath is false. Parameter of 'products' option of vswhere.exe. One or more product IDs to find. Defaults to Community, Professional, and Enterprise. Specify "\*" by itself to search all product instances installed. See <https://aka.ms/vs/workloads> for a list of product IDs. | \*
@@ -104,7 +108,7 @@ Also see <https://www.npmjs.org/doc/json.html#dependencies> for details of how t
 
 |Version| Notes|
 |-------|------|
-|1.2|Added options vswhereProduct & vswhereVersion. Switched from vswhere 2.6.4 to 2.8.4.
+|1.2|Added options vswhereProduct & vswhereVersion. Switched from vswhere 2.6.7 to 2.8.4.
 |1.0|This version replaces the version option with msbuildPath to support MSBuild versions moving forward from Visual Studio 2019.
 |0.2.0|This version replaces exec() with spawn() to improve memory usage and also to support coloured console output. This has been tested internally.
 |0.1.12|Support for MSBuild 12 added|
