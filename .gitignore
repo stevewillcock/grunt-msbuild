@@ -18,7 +18,7 @@ node_modules/
 [Rr]elease/
 x64/
 build/
-[Bb]in/
+tests/**/[Bb]in/
 [Oo]bj/
 
 # MSTest test Results
