@@ -4,7 +4,7 @@ Build projects with MSBuild and XBuild using Grunt
 
 ## Getting Started
 
-This plugin requires Grunt `~0.4.0`. In other words it should work on 0.4.0 or higher.
+This plugin targets Grunt `~1.3`. While it may work on older versions it's generally good practice to always use an up to date version of Grunt!
 
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin with this command:
 
