@@ -2,6 +2,10 @@
 
 Build projects with MSBuild and XBuild using Grunt
 
+## *** This repo is no longer maintained ***
+
+If you still need to run MSBuild as part of your Grunt workflow it might be sensible to find another way to do that.
+
 ## Getting Started
 
 This plugin targets Grunt `^1.3`. While it may work on older versions it's generally good practice to always use an up to date version of Grunt!
