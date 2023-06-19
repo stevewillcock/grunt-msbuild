@@ -2,12 +2,10 @@ module.exports = function (grunt) {
 
     "use strict";
 
-    var spawn = require("child_process").spawn,
+    const spawn = require("child_process").spawn,
         path = require("path"),
         execSync = require("child_process").execSync,
-        async = require("async")
-
-    var _ = grunt.util._;
+        async = require("async");
 
     grunt.registerMultiTask("msbuild", "Run MSBuild tasks", function () {
         var asyncCallback = this.async();
@@ -33,12 +31,12 @@ module.exports = function (grunt) {
 
         grunt.verbose.writeln("Using Options: " + JSON.stringify(options, undefined, 4).cyan);
 
-        var projectFunctions = [];
-        var files = this.files;
-        var fileExists = false;
+        const projectFunctions = [];
+        const files = this.files;
+        let fileExists = false;
 
         if (files.length === 0) {
-            files.push({ src: [""] });
+            files.push({src: [""]});
         }
 
         files.forEach(function (filePair) {
@@ -65,7 +63,7 @@ module.exports = function (grunt) {
     });
 
     function build(src, options, cb) {
-        var projName = src || path.basename(process.cwd());
+        const projName = src || path.basename(process.cwd());
 
         grunt.log.writeln("Building " + projName.cyan);
 
@@ -81,11 +79,11 @@ module.exports = function (grunt) {
             }
         }
 
-        var cmd = options.msbuildPath;
+        let cmd = options.msbuildPath;
         if (options.inferMsbuildPath) {
             cmd = inferMSBuildPathViaVSWhere(options.vswhereProducts, options.vswhereVersion);
         }
-        var args = createCommandArgs(src, options);
+        const args = createCommandArgs(src, options);
 
         grunt.verbose.writeln("Using cmd:", cmd);
         grunt.verbose.writeln("Using args:", args);
@@ -94,12 +92,12 @@ module.exports = function (grunt) {
             return;
         }
 
-        var cp = spawn(cmd, args, {
+        const cp = spawn(cmd, args, {
             stdio: "inherit"
         });
 
         cp.on("close", function (code) {
-            var success = code === 0;
+            const success = code === 0;
             grunt.verbose.writeln("close received - code: ", success);
 
             if (code === 0) {
@@ -151,22 +149,22 @@ module.exports = function (grunt) {
     function inferMSBuildPathViaVSWhere(vswhereProducts, vswhereVersion) {
         grunt.verbose.writeln("Using vswhere.exe to infer path for msbuild ");
 
-        var exePath = path.resolve(__dirname, "../bin/vswhere.exe");
+        const exePath = path.resolve(__dirname, "../bin/vswhere.exe");
 
-        var quotedExePathWithArgs = `"${ exePath }" ${ setParams(vswhereProducts, vswhereVersion).join(" ") }`;
+        const quotedExePathWithArgs = `"${exePath}" ${setParams(vswhereProducts, vswhereVersion).join(" ")}`;
 
         grunt.verbose.writeln("using quoted exe path: " + quotedExePathWithArgs);
 
-        var resultString = execSync(quotedExePathWithArgs).toString();
+        const resultString = execSync(quotedExePathWithArgs).toString();
         grunt.verbose.writeln("vswhere results start");
         grunt.verbose.writeln(resultString);
         grunt.verbose.writeln("vswhere results end");
 
-        var results = resultString.split("\r");
+        const results = resultString.split("\r");
         grunt.verbose.writeln("vswhere first result:");
         grunt.verbose.writeln(results[0]);
 
-        var normalisedPath = path.normalize(results[0]);
+        const normalisedPath = path.normalize(results[0]);
         grunt.verbose.writeln("vswhere result normalised path: ");
         grunt.verbose.writeln(normalisedPath);
 
@@ -174,10 +172,10 @@ module.exports = function (grunt) {
     }
 
     function createCommandArgs(src, options) {
-        var args = [];
+        const args = [];
 
         if (src) {
-            var projectPath = path.normalize(src);
+            const projectPath = path.normalize(src);
 
             args.push(projectPath);
         }
@@ -216,8 +214,8 @@ module.exports = function (grunt) {
             args.push("/p:VisualStudioVersion=" + options.visualStudioVersion + ".0");
         }
 
-        for (var buildArg in options.buildParameters) {
-            var p = "/property:" + buildArg + "=" + options.buildParameters[buildArg];
+        for (const buildArg in options.buildParameters) {
+            const p = "/property:" + buildArg + "=" + options.buildParameters[buildArg];
             grunt.verbose.writeln("setting property: " + p);
             args.push(p);
         }
